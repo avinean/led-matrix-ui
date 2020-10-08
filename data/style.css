@@ -1,0 +1,10 @@
+table
+{
+    table-layout:fixed;
+}
+td,th
+{
+    width:10px;
+    height: 10px;
+    word-wrap:break-word;
+}
