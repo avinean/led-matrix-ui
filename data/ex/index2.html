@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image drawing</title>
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <link href="style.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+    <form method="post" action="/draw" onsubmit="return submitForm(this);">
+        <input type="hidden" id="width"  value=OUT_WIDTH  name="width" />
+        <input type="hidden" id="height" value=OUT_HEIGTH name="height" />
+        <input type="hidden" id="depth"  value=OUT_DEPTH  name="depth" />
+        <input type="hidden" id="data" name="data" />
+        <input type="submit" value="post request"/>
+    </form>
+
+    <canvas id="canvas" width="640" height="480"></canvas>
+    <label for="fileChooser">Choose an image to display</label>
+    <input type="file" name="fileChooser" id="fileChooser" accept="image/jpeg">
+    <button onclick="getSrc()">get src</button>
+    <div id="parsedImg"></div>
+    <table id="myTable" border="1"></table>
+
+
+
+    <script type="text/javascript" src="draw.js"></script>
+</body>
+</html>

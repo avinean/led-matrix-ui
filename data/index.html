@@ -1,29 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Image drawing</title>
-    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-    <link href="style.css" rel="stylesheet" type="text/css"/>
+    <meta charset="UTF-8">
+    <script src="https://unpkg.com/vanilla-picker@2"></script>
+    <script
+      src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+      crossorigin="anonymous"></script>
+    <script
+        src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"
+        integrity="sha512-dqw6X88iGgZlTsONxZK9ePmJEFrmHwpuMrsUChjAw1mRUhUITE5QU9pkcSox+ynfLhL15Sv2al5A0LVyDCmtUw=="
+        crossorigin="anonymous"
+    ></script>
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css"
+        integrity="sha512-8bHTC73gkZ7rZ7vpqUQThUDhqcNFyYi2xgDgPDHc+GXVGHXq+xPjynxIopALmOPqzo9JZj0k6OqqewdGO3EsrQ=="
+        crossorigin="anonymous"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://unpkg.com/vue@next"></script>
+    <link rel="stylesheet" href="./style.css">
+    <title>Document</title>
 </head>
 <body>
-    <form method="post" action="/draw" onsubmit="return submitForm(this);">
-        <input type="hidden" id="width"  value=OUT_WIDTH  name="width" />
-        <input type="hidden" id="height" value=OUT_HEIGTH name="height" />
-        <input type="hidden" id="depth"  value=OUT_DEPTH  name="depth" />
-        <input type="hidden" id="data" name="data" />
-        <input type="submit" value="post request"/>
-    </form>
+    <div id="app">
+        <div class="ui top attached tabular menu">
+            <a
+                v-for="tab in tabs"
+                class="item"
+                :class="tab.key === currentTab ? 'active' : ''"
+                :key="tab.key"
+                @click="currentTab = tab.key"
+            >{{ tab.label }}</a>
+        </div>
+        <div
+            class="ui bottom attached tab segment"
+            :class="currentTab === 'Picture' ? 'active' : ''"
+        >
+            <app-picture></app-picture>
+        </div>
+        <div
+            class="ui bottom attached tab segment"
+            :class="currentTab === 'Effects for picture' ? 'active' : ''"
+        >
+            <app-effects></app-effects>
+        </div>
+        <div
+            class="ui bottom attached tab segment"
+            :class="currentTab === 'Animations' ? 'active' : ''"
+        >
+            <app-animations></app-animations>
+        </div>
+    </div>
 
-    <canvas id="canvas" width="640" height="480"></canvas>
-    <label for="fileChooser">Choose an image to display</label>
-    <input type="file" name="fileChooser" id="fileChooser" accept="image/jpeg">
-    <button onclick="getSrc()">get src</button>
-    <div id="parsedImg"></div>
-    <table id="myTable" border="1"></table>
+    <script src="./appCreator.js"></script>
 
+    <script src="./picture.js"></script>
+    <script src="./pictureUpload.js"></script>
+    <script src="./pictureGallery.js"></script>
+    <script src="./pictureDrawer.js"></script>
 
-
-    <script type="text/javascript" src="draw.js"></script>
+    <script src="./effects.js"></script>
+    <script src="./animations.js"></script>
+    <script src="./appMounter.js"></script>
 </body>
 </html>
