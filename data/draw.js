@@ -71,6 +71,27 @@ function createTable(w,h){
     }
 }
 
+function createImage(width, height) {
+    var wrapper = document.querySelector('#parsedImg');
+    var wrapperContent = '';
+    var widthList = Array(width).fill().map((i, j) => j);
+    var heightList = Array(height).fill().map((i, j) => j);
+
+    wrapper.innerHTML = widthList.map(x => `<div class="picture__row">
+        ${
+            heightList.map(y => {
+                var pixel = getPixel(imgData, y, x );
+                var color = getHtmlColor(pixel);
+                return `<div
+                    class="picture__column"
+                    style="background-color: ${color};"
+                ></div>`;
+            }).join('')
+        }
+    </div>`).join('');
+}
+
+
 
 
 window.addEventListener("DOMContentLoaded", function(){
@@ -105,7 +126,7 @@ function loadAndDrawImage(url){
     image.onload = function()    {
         // draw image...
         drawImage();
-        createTable(OUT_WIDTH, OUT_HEIGTH);
+        createImage(OUT_WIDTH, OUT_HEIGTH);
     }
     // Now set the source of the image that we want to load
     image.src = url;

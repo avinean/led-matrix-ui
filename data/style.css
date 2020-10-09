@@ -1,10 +1,15 @@
-table
-{
-    table-layout:fixed;
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
 }
-td,th
-{
-    width:10px;
-    height: 10px;
-    word-wrap:break-word;
+
+.picture__row {
+    display: flex;
+}
+
+.picture__column {
+    width: 2px;
+    height: 2px;
 }
