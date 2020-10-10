@@ -6,8 +6,65 @@ app.component('app-picture-gallery', {
         </h4>
         <div class="ui card" style="width: auto;">
             <div class="content">
-                Under construction
+                <div class="upload__button mb-10">
+                    <button
+                        class="ui left labeled icon button primary"
+                        :class="{
+                            loading: loading
+                        }"
+                        @click="loadGallery"
+                    >
+                        <i class="image icon"></i>
+                        Load gallegy
+                    </button >
+                </div>
+                <div
+                    v-if="images.length"
+                    class="ui small images mb-10"
+                >
+                    <img
+                        v-for="image in images"
+                        :key="image"
+                        :src="image"
+                    />
+                </div>
+                <div
+                    v-if="images.length"
+                    class="upload__button mb-10"
+                >
+                    <button
+                        class="ui left labeled icon button primary"
+                        :class="{
+                            loading: loading
+                        }"
+                        @click="loadGallery"
+                    >
+                        <i class="image icon"></i>
+                        Load more
+                    </button >
+                </div>
             </div>
         </div>
     `,
+    data() {
+        return {
+            images: [],
+            loading: false,
+        }
+    },
+    methods: {
+        loadGallery() {
+            this.loading = true;
+            setTimeout(() => {
+                this.images = [...this.images, ...[
+                    "https://myrusakov.ru/images/avatars/54d0990fd00d7.jpeg",
+                    "https://myrusakov.ru/images/avatars/54d0990fd00d7.jpeg",
+                    "https://myrusakov.ru/images/avatars/54d0990fd00d7.jpeg",
+                    "https://myrusakov.ru/images/avatars/54d0990fd00d7.jpeg",
+                ]];
+
+                this.loading = false;
+            }, 2000);
+        }
+    }
 });
