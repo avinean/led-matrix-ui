@@ -6,18 +6,6 @@ app.component('app-picture-gallery', {
         </h4>
         <div class="ui card" style="width: auto;">
             <div class="content">
-                <div class="upload__button mb-10">
-                    <button
-                        class="ui left labeled icon button primary"
-                        :class="{
-                            loading: loading
-                        }"
-                        @click="loadGallery"
-                    >
-                        <i class="image icon"></i>
-                        Load gallegy
-                    </button >
-                </div>
                 <div
                     v-if="images.length"
                     class="ui small images mb-10"
@@ -29,7 +17,6 @@ app.component('app-picture-gallery', {
                     />
                 </div>
                 <div
-                    v-if="images.length"
                     class="upload__button mb-10"
                 >
                     <button
@@ -40,7 +27,7 @@ app.component('app-picture-gallery', {
                         @click="loadGallery"
                     >
                         <i class="image icon"></i>
-                        Load more
+                        {{ images.length ? 'Load more' : 'Load gallery' }}
                     </button >
                 </div>
             </div>

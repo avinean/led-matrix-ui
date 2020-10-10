@@ -84,8 +84,8 @@ app.component('app-picture-upload', {
             const imgHeight = this.image.height;
             const imgRatio = imgWidth / imgHeight;
       
-            this.OUT_WIDTH = width;
-            this.OUT_HEIGTH = width / imgRatio;
+            this.OUT_WIDTH = imgWidth > width ? width : imgWidth;
+            this.OUT_HEIGTH = (imgWidth > width ? width : imgWidth) / imgRatio;
 
             canvas.width  = this.OUT_WIDTH;
             canvas.height = this.OUT_HEIGTH;
