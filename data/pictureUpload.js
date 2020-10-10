@@ -43,13 +43,22 @@ app.component('app-picture-upload', {
     },
     computed: {
         OUT_SRC() {        
-            var widthList = Array(this.OUT_WIDTH).fill().map((i, j) => j);
-            var heightList = Array(this.OUT_HEIGTH).fill().map((i, j) => j);
+            const widthList = Array(this.OUT_WIDTH).fill().map((i, j) => j);
+            const heightList = Array(this.OUT_HEIGTH).fill().map((i, j) => j);
 
-            return heightList.map(y => widthList.map(x => {
-                const dta = this.getPixel(this.imgData, x, y );
-                return `${dta.r},${dta.g},${dta.b}${ (( y == this.OUT_HEIGTH-1 ) && ( x == this.OUT_WIDTH - 1 )) ? "" : "," }`;
-            }).join('')).join('');
+            const byteArray = new Uint8Array(this.OUT_HEIGTH * this.OUT_WIDTH  * 3);
+
+            heightList.forEach(y => {
+                widthList.forEach(x => {
+                    const index = y * widthList.length + x;
+                    const dta = this.getPixel(this.imgData, x, y);
+                    byteArray[index] = dta.r;
+                    byteArray[index + 1] = dta.g;
+                    byteArray[index + 2] = dta.b;
+                });
+            });
+
+            return byteArray;
         },
     },
     methods: {
@@ -105,18 +114,18 @@ app.component('app-picture-upload', {
             };
         },
         sendImgData() {
-            const data = {
-                width: this.OUT_WIDTH,
-                height: this.OUT_HEIGTH,
-                depth: this.OUT_DEPTH,
-                data: this.OUT_SRC
-            };
+            const body = new Blob([this.OUT_SRC], {type: "octet/stream"})
 
-            
-            fetch('/draw', {
-                method: 'POST',
-                body: JSON.stringify(data),
+            fetch('/draw', {  
+                method: 'POST',  
+                headers: {  
+                  'Content-Type': 'application/octet-stream',
+                },  
+                body,
             });
         }
+    },
+    mounted() {
+
     }
 });

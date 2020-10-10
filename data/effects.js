@@ -1,4 +1,25 @@
-let trueThis;
+const observer = {
+    events: {},
+    emit(event, ...args) {
+        const e = this.events[event];
+        if (!(e && e instanceof Array)) return;
+
+        e.forEach((cb) => {
+            cb(...args);
+        })
+    },
+    on(event, cb, once) {
+        let e = this.events[event];
+        if (!(e && e instanceof Array)) {
+            this.events[event] = [];
+            e = this.events[event];
+        }
+
+        if (once && e.includes(cb)) return;
+
+        e.push(cb);
+    }
+}
 
 app.component('app-effects', {
     template: `
@@ -37,7 +58,7 @@ app.component('app-effects', {
     data() {
         return {
             selectedEffect: 0,
-            speed: 0,
+            speed: 5,
             effectsList: {
                 0: 'effect 1',
                 1: 'effect 2',
@@ -50,21 +71,14 @@ app.component('app-effects', {
             speedConfig: {
                 min: 0,
                 max: 10,
-                start: 5,
-                // onChange: trueThis.setSpeed.bind(trueThis),
+                onChange: (value) => {
+                    this.speed = value;
+                },
             }
         };
     },
-    methods: {
-        setSpeed(speed) {
-            this.speed = speed;
-        }
-    },
     mounted() {
         $('.ui.dropdown').dropdown();
-        $('#tmp').range(this.speedConfig);
-    },
-    created() {
-        trueThis = this;
+        $('.ui.range').range(this.speedConfig);
     }
 });

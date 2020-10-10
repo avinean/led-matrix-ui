@@ -16,18 +16,6 @@ app.component('app-picture-drawer', {
                         :style="'background: ' + currentColor + ';'"
                     ></a>
                 </div>
-                <div class="ui right labeled left input mb-10">
-                    <input type="number" v-model.number="xSize">
-                    <a class="ui tag label green">
-                        X size
-                    </a>
-                </div>
-                <div class="ui right labeled left input mb-10">
-                    <input type="number" v-model.number="ySize">
-                    <a class="ui tag label green">
-                        Y size
-                    </a>
-                </div>
             </div>
         </div>
         <div class="ui card" style="width: auto;">
