@@ -6,23 +6,25 @@ app.component('app-picture-drawer', {
         </h4>
         <div class="ui card" style="width: auto;">
             <div class="content">
-                <button class="circular ui icon button" ref="color-picker">
-                    <i class="icon eye dropper"></i>
-                </button>
-                Choose color
-            </div>
-        </div>
-        <div class="ui card" style="width: auto;">
-            <div class="content">
-                <div class="ui right labeled left input">
+                <div class="mb-10">
+                    <button class="ui labeled icon button" ref="color-picker">
+                        <i class="icon eye dropper"></i>
+                        Choose color
+                    </button>
+                    <a
+                        class="ui circular label"
+                        :style="'background: ' + currentColor + ';'"
+                    ></a>
+                </div>
+                <div class="ui right labeled left input mb-10">
                     <input type="number" v-model.number="xSize">
-                    <a class="ui tag label">
+                    <a class="ui tag label green">
                         X size
                     </a>
                 </div>
-                <div class="ui right labeled left input">
+                <div class="ui right labeled left input mb-10">
                     <input type="number" v-model.number="ySize">
-                    <a class="ui tag label">
+                    <a class="ui tag label green">
                         Y size
                     </a>
                 </div>
@@ -36,10 +38,14 @@ app.component('app-picture-drawer', {
                     @touchstart="startDraw"
                     @touchmove="doDraw"
                     @touchend="endDraw"
+                    @mousedown="startDraw"
+                    @mousemove="doDraw"
+                    @mouseup="endDraw"
                 >
                     <div
                         v-for="row in ySize"
                         :key="row"
+                        :style="'width: ' + charSize * xSize + 'px;'"
                         class="drawer__row"
                     >
                         <div
@@ -58,8 +64,8 @@ app.component('app-picture-drawer', {
         return {
             currentColor: 'rgb(255, 255, 255)',
             srcColor: [255, 255, 255, 255],
-            xSize: 32,
-            ySize: 32,
+            xSize: 16,
+            ySize: 16,
             isDrawing: false,
             prevDrawnElement: null,
             charSize: 0,
@@ -91,15 +97,16 @@ app.component('app-picture-drawer', {
                 this.currentColor = color.rgbaString;
             };
         },
-        startDraw() {
+        startDraw(event) {
             this.isDrawing = true;
+            this.doDraw(event);
         },
         doDraw(event) {
             event.preventDefault();
             if (!this.isDrawing) return;
-
-            var xcoord = event.touches? event.touches[0].pageX : event.pageX;
-            var ycoord = event.touches? event.touches[0].pageY : event.pageY;
+            
+            var xcoord = event.touches? event.touches[0].clientX : event.clientX;
+            var ycoord = event.touches? event.touches[0].clientY : event.clientY;
             
             var targetElement = document.elementFromPoint(xcoord, ycoord);
 
@@ -115,13 +122,13 @@ app.component('app-picture-drawer', {
 
         },
         endDraw() {
-            this.isDrawing - false;
+            this.isDrawing = false;
         },
         sendData(params) {
             fetch('/pixel', {
                 method: 'POST',
                 body: JSON.stringify(params),
-            })
+            });
         }
     },
     mounted() {

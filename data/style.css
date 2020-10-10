@@ -14,7 +14,10 @@
     height: 2px;
 }
 
-.draw {}
+.drawer {
+    max-width: 600px;
+    margin: 10px auto;
+}
 
 .drawer__row {
     display: flex;
@@ -23,3 +26,15 @@
 .drawer__col {
     border: 1px solid #f5f5f5;
 }
+
+.upload__button {
+    text-align: center;
+}
+
+.upload__drawer {
+    display: none;
+    margin: 10px auto;
+}
+
+
+.mb-10 { margin-bottom: 10px;}

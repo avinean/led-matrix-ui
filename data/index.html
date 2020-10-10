@@ -25,32 +25,34 @@
 </head>
 <body>
     <div id="app">
-        <div class="ui top attached tabular menu">
-            <a
-                v-for="tab in tabs"
-                class="item"
-                :class="tab.key === currentTab ? 'active' : ''"
-                :key="tab.key"
-                @click="currentTab = tab.key"
-            >{{ tab.label }}</a>
-        </div>
-        <div
-            class="ui bottom attached tab segment"
-            :class="currentTab === 'Picture' ? 'active' : ''"
-        >
-            <app-picture></app-picture>
-        </div>
-        <div
-            class="ui bottom attached tab segment"
-            :class="currentTab === 'Effects for picture' ? 'active' : ''"
-        >
-            <app-effects></app-effects>
-        </div>
-        <div
-            class="ui bottom attached tab segment"
-            :class="currentTab === 'Animations' ? 'active' : ''"
-        >
-            <app-animations></app-animations>
+        <div class="ui container">
+            <div class="ui top attached tabular menu">
+                <a
+                    v-for="tab in tabs"
+                    class="item"
+                    :class="tab.key === currentTab ? 'active' : ''"
+                    :key="tab.key"
+                    @click="currentTab = tab.key"
+                >{{ tab.label }}</a>
+            </div>
+            <div
+                class="ui bottom attached tab segment"
+                :class="currentTab === 'Picture' ? 'active' : ''"
+            >
+                <app-picture></app-picture>
+            </div>
+            <div
+                class="ui bottom attached tab segment"
+                :class="currentTab === 'Effects for picture' ? 'active' : ''"
+            >
+                <app-effects></app-effects>
+            </div>
+            <div
+                class="ui bottom attached tab segment"
+                :class="currentTab === 'Animations' ? 'active' : ''"
+            >
+                <app-animations></app-animations>
+            </div>
         </div>
     </div>
 
