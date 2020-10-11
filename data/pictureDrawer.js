@@ -6,20 +6,7 @@ app.component('app-picture-drawer', {
         </h4>
         <div class="ui card" style="width: auto;">
             <div class="content">
-                <div class="mb-10">
-                    <button class="ui labeled icon button" ref="color-picker">
-                        <i class="icon eye dropper"></i>
-                        Choose color
-                    </button>
-                    <a
-                        class="ui circular label"
-                        :style="'background: ' + currentColor + ';'"
-                    ></a>
-                </div>
-            </div>
-        </div>
-        <div class="ui card" style="width: auto;">
-            <div class="content">
+                <div ref="colorPicker"></div>
                 <div
                     ref="drawer"
                     class="drawer"
@@ -29,6 +16,7 @@ app.component('app-picture-drawer', {
                     @mousedown="startDraw"
                     @mousemove="doDraw"
                     @mouseup="endDraw"
+                    @contextmenu.prevent="picker.show()"
                 >
                     <div
                         v-for="row in ySize"
@@ -56,7 +44,9 @@ app.component('app-picture-drawer', {
             ySize: 16,
             isDrawing: false,
             prevDrawnElement: null,
+            prevTouchedElement: null,
             charSize: 0,
+            picker: null,
         };
     },
     watch: {
@@ -77,17 +67,34 @@ app.component('app-picture-drawer', {
             this.charSize = width / this.xSize;
         },
         initPicker() {
-            const pickerEl = this.$refs['color-picker'];
-            const picker = new Picker(pickerEl);
-
-            picker.onChange = color =>  {
+            const pickerEl = this.$refs.colorPicker;
+            this.picker = new Picker(pickerEl);
+            this.picker.setOptions({
+                popup: 'bottom',
+            });
+            
+            this.picker.onChange = color =>  {
                 this.srcColor = color.rgba;
                 this.currentColor = color.rgbaString;
             };
         },
+        callPicker(event) {
+            var xcoord = event.touches? event.touches[0].clientX : event.clientX;
+            var ycoord = event.touches? event.touches[0].clientY : event.clientY;
+            
+            var targetElement = document.elementFromPoint(xcoord, ycoord);
+            this.prevTouchedElement = targetElement;
+
+            setTimeout(() => {
+                if (targetElement === this.prevTouchedElement) {
+                    this.picker.show();
+                }
+            }, 1000);
+        },
         startDraw(event) {
             this.isDrawing = true;
             this.doDraw(event);
+            this.callPicker(event);
         },
         doDraw(event) {
             event.preventDefault();
@@ -100,6 +107,7 @@ app.component('app-picture-drawer', {
 
             if (this.prevDrawnElement === targetElement) return;
             this.prevDrawnElement = targetElement;
+            this.prevTouchedElement = targetElement;
             
             if (targetElement && targetElement.classList.contains('drawer__col')) {
                 targetElement.style.backgroundColor = this.currentColor;

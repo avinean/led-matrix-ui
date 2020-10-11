@@ -43,7 +43,7 @@ app.component('app-effects', {
         </div>
         <h4 class="ui horizontal divider header">
             <i class="fast forward icon"></i>
-            Effect spped
+            Effect speed
         </h4>
         <div class="ui card" style="width: auto;">
             <div class="content">

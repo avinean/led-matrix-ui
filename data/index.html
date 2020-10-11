@@ -27,33 +27,37 @@
 </head>
 <body>
     <div id="app">
-        <div class="ui container">
-            <div class="ui top attached tabular menu">
+        <div class="ui container main">
+            <div
+                v-if="currentTab === 'Picture'"
+                class="ui segment"
+            >
+                <app-picture></app-picture>
+            </div>
+            <div
+                v-if="currentTab === 'Effects for picture'"
+                class="ui segment"
+            >
+                <app-effects></app-effects>
+            </div>
+            <div
+                v-if="currentTab === 'Animations'"
+                class="ui segment"
+            >
+                <app-animations></app-animations>
+            </div>
+            
+            <div class="ui three item menu main__menu">
                 <a
                     v-for="tab in tabs"
                     class="item"
                     :class="tab.key === currentTab ? 'active' : ''"
                     :key="tab.key"
                     @click="currentTab = tab.key"
-                >{{ tab.label }}</a>
-            </div>
-            <div
-                class="ui bottom attached tab segment"
-                :class="currentTab === 'Picture' ? 'active' : ''"
-            >
-                <app-picture></app-picture>
-            </div>
-            <div
-                class="ui bottom attached tab segment"
-                :class="currentTab === 'Effects for picture' ? 'active' : ''"
-            >
-                <app-effects></app-effects>
-            </div>
-            <div
-                class="ui bottom attached tab segment"
-                :class="currentTab === 'Animations' ? 'active' : ''"
-            >
-                <app-animations></app-animations>
+                >
+                    <i class="icon" :class="tab.icon"></i>
+                    {{ tab.label }}
+                </a>
             </div>
         </div>
     </div>

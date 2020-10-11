@@ -10,7 +10,7 @@ app.component('app-picture-upload', {
                     <div class="upload__button">
                         <label class="ui right labeled icon button primary">
                             <i class="image icon"></i>
-                            Choose image
+                            Upload image
                             <input type="file" ref="uploader" hidden @change="handleFileSelect" accept="image/jpeg"/>
                         </label >
                     </div>
@@ -21,12 +21,6 @@ app.component('app-picture-upload', {
                         height="480"
                         hidden
                     ></canvas>
-                    <div v-if="imgLoaded" class="upload__button">
-                        <button class="ui right labeled icon button green" @click="sendImgData">
-                            <i class="upload icon"></i>
-                            Upload image
-                        </button >
-                    </div>
                 </div>
             </div>
         </div>
@@ -98,11 +92,12 @@ app.component('app-picture-upload', {
 
             canvas.width  = this.OUT_WIDTH;
             canvas.height = this.OUT_HEIGTH;
-            canvas.style.display = 'block';
         
             context.drawImage(this.image, 0, 0, this.OUT_WIDTH, this.OUT_HEIGTH);
         
             this.imgData = context.getImageData(0, 0, this.OUT_WIDTH, this.OUT_HEIGTH);
+
+            this.sendImgData();
         },
         getPixel(imageData, x, y) {
             var index = (x + y * imageData.width) * 4;
