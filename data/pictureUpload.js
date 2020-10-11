@@ -109,8 +109,9 @@ app.component('app-picture-upload', {
             };
         },
         sendImgData() {
-            const body = new Blob([this.OUT_SRC], {type: "octet/stream"})
-
+            const body = new Blob([this.OUT_SRC], {type: "octet/stream"});
+            console.log(this.OUT_SRC);
+            console.log(body);
             fetch('/draw', {  
                 method: 'POST',  
                 headers: {  
