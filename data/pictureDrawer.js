@@ -27,7 +27,7 @@ app.component('app-picture-drawer', {
                         <div
                             v-for="col in xSize"
                             class="drawer__col"
-                            :style="'width: ' + charSize + 'px; height: ' + charSize + 'px;'"
+                            :style="'width: ' + charSize + 'px; height: ' + charSize + 'px; background: rgb(0, 0, 0);'"
                             :data-x="col"
                             :data-y="row"
                         ></div>
@@ -38,8 +38,8 @@ app.component('app-picture-drawer', {
     `,
     data() {
         return {
-            currentColor: 'rgb(255, 255, 255)',
-            srcColor: [255, 255, 255, 255],
+            currentColor: 'rgb(0, 0, 0, 0)',
+            srcColor: [0, 0, 0, 0],
             xSize: 16,
             ySize: 16,
             isDrawing: false,
