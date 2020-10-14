@@ -1,5 +1,15 @@
 class Services {
 
+  fillMatrix(body) {   
+    return fetch('/fill-matrix', {  
+      method: 'POST',  
+      headers: {  
+        'Content-Type': 'application/json',
+      },  
+      body: JSON.stringify(body),
+    })
+  }
+
   clearImgData({ width, height }) {
     const byteArray = new Uint8Array(width * height * 3);
     byteArray.forEach((i, j) => byteArray[j] = 0);

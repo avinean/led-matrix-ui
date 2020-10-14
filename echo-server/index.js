@@ -7,7 +7,8 @@ const port = 2832
 const store = {};
 
 app.use(express.static(path.join(__dirname, '../data')))
-  app.use(bodyParser.raw({limit: '50mb'}))
+app.use(bodyParser.raw({limit: '50mb'}))
+app.use(bodyParser.json())
 
 app.get('/', (req, res) => {
   res.sendFile(path.resolve(__dirname, 'index.html'))
@@ -26,6 +27,11 @@ app.post('/pixel', (req, res) => {
 
 app.post('/draw', (req, res) => {
   store.img = req.body
+  res.sendStatus(200)
+})
+
+app.post('/fill-matrix', (req, res) => {
+  console.log(req.body);
   res.sendStatus(200)
 })
 

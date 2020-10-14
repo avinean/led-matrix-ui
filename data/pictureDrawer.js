@@ -197,23 +197,8 @@ app.component('app-picture-drawer', {
             });
         },
         fillDrawer() {
-            const widthList = Array(this.matrixParams.width).fill().map((i, j) => j);
-            const heightList = Array(this.matrixParams.height).fill().map((i, j) => j);
-
-            const byteArray = new Uint8Array(this.matrixParams.width * this.matrixParams.height * 3);
-
-            heightList.forEach(y => {
-                widthList.forEach(x => {
-                    let index = (y * widthList.length + x) * 3;
-                    const [r, g, b] = this.srcColor;
-                    byteArray[index++] = r;
-                    byteArray[index++] = g;
-                    byteArray[index++] = b;
-                });
-            });
-
-            const body = new Blob([byteArray], {type: "octet/stream"});
-            services.sendImgData(body);
+            const [r, g, b] = this.srcColor;
+            services.fillMatrix({ r, g, b });
         }
     },
     async mounted() {
