@@ -1,26 +1,3 @@
-const observer = {
-    events: {},
-    emit(event, ...args) {
-        const e = this.events[event];
-        if (!(e && e instanceof Array)) return;
-
-        e.forEach((cb) => {
-            cb(...args);
-        })
-    },
-    on(event, cb, once) {
-        let e = this.events[event];
-        if (!(e && e instanceof Array)) {
-            this.events[event] = [];
-            e = this.events[event];
-        }
-
-        if (once && e.includes(cb)) return;
-
-        e.push(cb);
-    }
-}
-
 app.component('app-effects', {
     template: `
         <h4 class="ui horizontal divider header">
@@ -48,8 +25,8 @@ app.component('app-effects', {
         <div class="ui card" style="width: auto;">
             <div class="content">
                 <div class="mb-10">
-                    <div class="ui segment">
-                        <div class="ui range" id="tmp"></div>
+                    <div class="ui segment" style="display: flex;">
+                        {{ speedConfig.min }} <div class="ui range" id="tmp"></div> {{ speedConfig.max }}
                     </div>
                 </div>
             </div>
@@ -70,7 +47,8 @@ app.component('app-effects', {
             },
             speedConfig: {
                 min: 0,
-                max: 10,
+                max: 6,
+                start: 3,
                 onChange: (value) => {
                     this.speed = value;
                 },

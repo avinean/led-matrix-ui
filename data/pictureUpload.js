@@ -40,15 +40,16 @@ app.component('app-picture-upload', {
             const widthList = Array(this.OUT_WIDTH).fill().map((i, j) => j);
             const heightList = Array(this.OUT_HEIGTH).fill().map((i, j) => j);
 
-            const byteArray = new Uint8Array(this.OUT_HEIGTH * this.OUT_WIDTH  * 3);
+            const byteArray = new Uint8Array(this.OUT_HEIGTH * this.OUT_WIDTH * 3);
 
+            let index = 0;
             heightList.forEach(y => {
                 widthList.forEach(x => {
-                    const index = y * widthList.length + x;
+                    // const index = y * widthList.length + x;
                     const dta = this.getPixel(this.imgData, x, y);
-                    byteArray[index] = dta.r;
-                    byteArray[index + 1] = dta.g;
-                    byteArray[index + 2] = dta.b;
+                    byteArray[index++] = dta.r;
+                    byteArray[index++] = dta.g;
+                    byteArray[index++] = dta.b;
                 });
             });
 
@@ -110,15 +111,7 @@ app.component('app-picture-upload', {
         },
         sendImgData() {
             const body = new Blob([this.OUT_SRC], {type: "octet/stream"});
-            console.log(this.OUT_SRC);
-            console.log(body);
-            fetch('/draw', {  
-                method: 'POST',  
-                headers: {  
-                  'Content-Type': 'application/octet-stream',
-                },  
-                body,
-            });
+            services.sendImgData(body);
         }
     },
     mounted() {
