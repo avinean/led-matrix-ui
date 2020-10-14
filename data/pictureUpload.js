@@ -17,9 +17,8 @@ app.component('app-picture-upload', {
                     <canvas
                         class="upload__drawer"
                         ref="canvas"
-                        width="640"
-                        height="480"
-                        hidden
+                        width="16"
+                        height="16"
                     ></canvas>
                 </div>
             </div>
@@ -32,7 +31,10 @@ app.component('app-picture-upload', {
             imgLoaded: false,
             OUT_WIDTH: 0,
             OUT_HEIGTH: 0,
-            OUT_DEPTH: 3,
+            matrixParams: {
+                height: 0,
+                width: 0,
+            },
         };
     },
     computed: {
@@ -87,15 +89,28 @@ app.component('app-picture-upload', {
             const imgHeight = this.image.height;
             const imgRatio = imgWidth / imgHeight;
       
-            this.OUT_WIDTH = imgWidth > width ? width : imgWidth;
-            this.OUT_HEIGTH = (imgWidth > width ? width : imgWidth) / imgRatio;
+            let xOffset = 0;
+            let yOffset = 0;
+            if (imgHeight !== imgWidth) {
+                if (imgWidth > imgHeight) {
+                    yOffset = Math.floor((this.matrixParams.height * imgRatio - this.matrixParams.height) / 2);
+                }
+                if (imgWidth < imgHeight) {
+                    xOffset = Math.floor((this.matrixParams.width / imgRatio - this.matrixParams.width) / 2);
+                }
+            }
 
-            canvas.width  = this.OUT_WIDTH;
-            canvas.height = this.OUT_HEIGTH;
+            console.log(xOffset, yOffset)
+      
+            this.OUT_WIDTH = this.matrixParams.width;
+            this.OUT_HEIGTH = this.matrixParams.height;
+
+            canvas.width  = this.matrixParams.width;
+            canvas.height = this.matrixParams.height;
         
-            context.drawImage(this.image, 0, 0, this.OUT_WIDTH, this.OUT_HEIGTH);
+            context.drawImage(this.image, 0, 0, canvas.width, canvas.height, xOffset, yOffset, canvas.width, canvas.height);
         
-            this.imgData = context.getImageData(0, 0, this.OUT_WIDTH, this.OUT_HEIGTH);
+            this.imgData = context.getImageData(0, 0, canvas.width, canvas.height);
 
             this.sendImgData();
         },
@@ -108,12 +123,18 @@ app.component('app-picture-upload', {
                 a: imageData.data[index+3],
             };
         },
+        getMatrixParameters() {
+            return services.getMatrixParameters()
+                .then(params => {
+                    this.matrixParams = params;
+                });
+        },
         sendImgData() {
             const body = new Blob([this.OUT_SRC], {type: "octet/stream"});
             services.sendImgData(body);
         }
     },
     mounted() {
-
+        this.getMatrixParameters();
     }
 });

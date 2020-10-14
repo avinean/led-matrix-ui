@@ -35,6 +35,12 @@
                 <app-picture></app-picture>
             </div>
             <div
+                v-if="currentTab === 'Text/Clock'"
+                class="ui segment"
+            >
+                <app-text></app-text>
+            </div>
+            <div
                 v-if="currentTab === 'Effects for picture'"
                 class="ui segment"
             >
@@ -47,16 +53,15 @@
                 <app-animations></app-animations>
             </div>
             
-            <div class="ui three item menu main__menu">
+            <div class="ui four item menu main__menu">
                 <a
                     v-for="tab in tabs"
-                    class="item"
+                    class="item green"
                     :class="tab.key === currentTab ? 'active' : ''"
                     :key="tab.key"
                     @click="currentTab = tab.key"
                 >
-                    <i class="icon" :class="tab.icon"></i>
-                    {{ tab.label }}
+                    <i class="icon" :class="tab.icon" style="font-size: 30px;"></i>
                 </a>
             </div>
         </div>
@@ -71,6 +76,7 @@
     <script src="./pictureGallery.js"></script>
     <script src="./pictureDrawer.js"></script>
 
+    <script src="./text.js"></script>
     <script src="./effects.js"></script>
     <script src="./animations.js"></script>
     <script src="./appMounter.js"></script>

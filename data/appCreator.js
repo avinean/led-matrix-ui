@@ -8,6 +8,11 @@ const app = Vue.createApp({
                     icon: 'image'
                 },
                 {
+                    key: 'Text/Clock',
+                    label: 'Text/Clock',
+                    icon: 'keyboard outline',
+                },
+                {
                     key: 'Effects for picture',
                     label: 'Effects for picture',
                     icon: 'film'
