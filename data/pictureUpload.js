@@ -42,14 +42,13 @@ app.component('app-picture-upload', {
 
             const byteArray = new Uint8Array(this.OUT_HEIGTH * this.OUT_WIDTH * 3);
 
-            let index = 0;
             heightList.forEach(y => {
                 widthList.forEach(x => {
-                    // const index = y * widthList.length + x;
-                    const dta = this.getPixel(this.imgData, x, y);
-                    byteArray[index++] = dta.r;
-                    byteArray[index++] = dta.g;
-                    byteArray[index++] = dta.b;
+                    let index = (y * widthList.length + x) * 3;
+                    const {r, g, b} = this.getPixel(this.imgData, x, y);
+                    byteArray[index++] = r;
+                    byteArray[index++] = g;
+                    byteArray[index++] = b;
                 });
             });
 

@@ -9,19 +9,12 @@ app.component('app-picture-drawer', {
             <div ref="wrapper">
                 <div class="upload__button">
                     <button
-                        class="ui right labeled icon button red"
-                        @click="clearDrawer"
-                    >
-                        <i class="eraser icon"></i>
-                        Clear image
-                    </button >
-                    <button
                         class="ui right labeled icon button green"
-                        @click="refresh"
+                        @click="isFillMode = true; picker.show();"
                     >
-                        <i class="sync alternate icon"></i>
-                        Update
-                    </button >
+                        <i class="eye dropper icon"></i>
+                        Fill field
+                    </button>
                 </div>
             </div>
         </div>
@@ -78,6 +71,7 @@ app.component('app-picture-drawer', {
             prevTouchedElement: null,
             charSize: 0,
             picker: null,
+            isFillMode: false,
         };
     },
     watch: {
@@ -104,9 +98,12 @@ app.component('app-picture-drawer', {
                 popup: 'bottom',
             });
             
-            this.picker.onChange = color =>  {
+            this.picker.onDone = color =>  {
                 this.srcColor = color.rgba;
                 this.currentColor = color.rgbaString;
+                if (this.isFillMode) {
+                    this.fillDrawer();
+                }
             };
         },
         callPicker(event) {
@@ -199,8 +196,24 @@ app.component('app-picture-drawer', {
                 this.redrawMatrix(value);
             });
         },
-        clearDrawer() {
-            services.clearImgData(this.matrixParams);
+        fillDrawer() {
+            const widthList = Array(this.matrixParams.width).fill().map((i, j) => j);
+            const heightList = Array(this.matrixParams.height).fill().map((i, j) => j);
+
+            const byteArray = new Uint8Array(this.matrixParams.width * this.matrixParams.height * 3);
+
+            heightList.forEach(y => {
+                widthList.forEach(x => {
+                    let index = (y * widthList.length + x) * 3;
+                    const [r, g, b] = this.srcColor;
+                    byteArray[index++] = r;
+                    byteArray[index++] = g;
+                    byteArray[index++] = b;
+                });
+            });
+
+            const body = new Blob([byteArray], {type: "octet/stream"});
+            services.sendImgData(body);
         }
     },
     async mounted() {
