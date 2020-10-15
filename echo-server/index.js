@@ -39,6 +39,16 @@ app.get('/matrix-state', (req, res) => {
   res.send(store.img)
 })
 
+app.post('/running-text', (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200)
+})
+
+app.post('/clock', (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200)
+})
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })

@@ -2,7 +2,7 @@ app.component('app-animations', {
     template: `
         <h4 class="ui horizontal divider header">
             <i class="image icon"></i>
-            Upload a picture
+            Upload an animation
         </h4>
         <div class="ui card" style="width: auto;">
             <div class="content">
@@ -19,6 +19,7 @@ app.component('app-animations', {
                         ref="canvas"
                         width="640"
                         height="480"
+                        hidden
                     ></canvas>
                 </div>
             </div>
@@ -39,15 +40,15 @@ app.component('app-animations', {
             const widthList = Array(this.OUT_WIDTH).fill().map((i, j) => j);
             const heightList = Array(this.OUT_HEIGTH).fill().map((i, j) => j);
 
-            const byteArray = new Uint8Array(this.OUT_HEIGTH * this.OUT_WIDTH  * 3);
+            const byteArray = new Uint8Array(this.OUT_HEIGTH * this.OUT_WIDTH * 3);
 
             heightList.forEach(y => {
                 widthList.forEach(x => {
-                    const index = y * widthList.length + x;
-                    const dta = this.getPixel(this.imgData, x, y);
-                    byteArray[index] = dta.r;
-                    byteArray[index + 1] = dta.g;
-                    byteArray[index + 2] = dta.b;
+                    let index = (y * widthList.length + x) * 3;
+                    const {r, g, b} = this.getPixel(this.imgData, x, y);
+                    byteArray[index++] = r;
+                    byteArray[index++] = g;
+                    byteArray[index++] = b;
                 });
             });
 
@@ -109,15 +110,7 @@ app.component('app-animations', {
         },
         sendImgData() {
             const body = new Blob([this.OUT_SRC], {type: "octet/stream"});
-            console.log(this.OUT_SRC);
-            console.log(body);
-            fetch('/draw', {  
-                method: 'POST',  
-                headers: {  
-                  'Content-Type': 'application/octet-stream',
-                },  
-                body,
-            });
+            services.sendImgData(body);
         }
     },
     mounted() {

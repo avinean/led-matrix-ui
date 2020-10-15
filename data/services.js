@@ -49,6 +49,20 @@ class Services {
     });
   }
 
+  setRunningText(params) {
+    fetch('/running-text', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
+  setClock(params) {
+    fetch('/clock', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
 }
 
 const services = new Services();
