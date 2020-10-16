@@ -6,34 +6,16 @@
 #include "ESPAsyncWebServer.h"
 #include "SPIFFS.h"
 
+#include "AsyncJson.h"
+#include "ArduinoJson.h"
 
-// SSID & Password
-const char* ssid = "Keenetic-1933";  // Enter your SSID here
-const char* password = "sMTVCwBP";  //Enter your Password here
-
-// Set LED GPIO
-const int ledPin = 2;
-// Stores LED state
-String ledState;
+#include "DefaultEndpoints.h"
+#include "MatrixHelper.h"
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-// Replaces placeholder with LED state value
-String processor(const String& var) {
-  Serial.println(var);
-  if (var == "STATE") {
-    if (digitalRead(ledPin)) {
-      ledState = "ON";
-    }
-    else {
-      ledState = "OFF";
-    }
-    Serial.print(ledState);
-    return ledState;
-  }
-  return String();
-}
+unsigned char resp[BITMAP_SIZE];
 
 void setupServer(){
   // Initialize SPIFFS
@@ -52,102 +34,167 @@ void setupServer(){
   // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
 
-  // Route for root / web page
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/index.html", String(), false, processor);
+  setupDefaultEndpoints(&server);
+
+  server.on("/get_pixel", HTTP_GET, [](AsyncWebServerRequest *request){
+    Serial.printf("/matrix-state[%u]", BITMAP_SIZE);
   });
 
-  // Route to load style.css file
-  server.on("/style.css", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/style.css", "text/css");
+
+  server.on("/fill-matrix", HTTP_POST, [](AsyncWebServerRequest *request){
+      //nothing and dont remove it
+    }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+      Serial.printf("/fill-matrix:\n");
+      DynamicJsonDocument root(128);
+  //      JsonObject& root = jsonBuffer.parseObject((const char*)data);
+      DeserializationError err = deserializeJson(root, (const char*)data);
+      if (err == DeserializationError::Ok) {
+        // Get a reference to the root object
+        JsonObject obj = root.as<JsonObject>();
+  
+        unsigned char r = obj["r"];//.as<char>();
+        unsigned char g = obj["g"];//.as<char>();
+        unsigned char b = obj["b"];//.as<char>();
+  
+        Serial.printf("r: %u g: %u b: %u\n\n", r, g, b);
+          
+  //      int idx = (x + y * MX_WIDTH) * DEPTH;
+  //      bitmap[idx] = r;
+  //      bitmap[idx+1] = g;
+  //      bitmap[idx+2] = b;
+  
+        request->send(200, "text/plain", "ack");
+      } else
+        request->send(404, "text/plain", ":(");
   });
 
-  // Route to load style.css file
-  server.on("/draw.js", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/draw.js", "text/javascript");
-  });
 
-  // Route to set GPIO to HIGH
-  server.on("/draw", HTTP_POST, [](AsyncWebServerRequest * request) {
-    //    digitalWrite(ledPin, HIGH);
-    //List all parameters
-    int params = request->params();
-    for(int i=0;i<params;i++){
-      AsyncWebParameter* p = request->getParam(i);
-      if(p->isFile()){ //p->isPost() is also true
-        Serial.printf("FILE[%s]: %s, size: %u\n", p->name().c_str(), p->value().c_str(), p->size());
-      } else if(p->isPost()){
-        if ( p->name().equals( "data" )){
-          int r=0, t=0;
-          String oneLine = p->value();//.c_str();//"123;456;789;999;";
-          Serial.printf("POST[%s]:\n", p->name().c_str());
-          for (int i=0; i < oneLine.length(); i++)
-          { 
-           if(oneLine.charAt(i) == ',') 
-            { 
-              bitmap[t] = oneLine.substring(r, i).toInt(); 
-              Serial.printf("%d\n", bitmap[t]);
-//              if ( i % LED_MATRIX_DEPTH )
-//                Serial.printf("\n");
-              r=(i+1); 
-              t++; 
-            }
+  server.on("/matrix-state", HTTP_GET, [](AsyncWebServerRequest *request){  
+    AsyncWebServerResponse *response = request->beginChunkedResponse("application/octet-stream", 
+      [](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
+          Serial.printf("\n/matrix-state[%u]:%3d, %3d\n", BITMAP_SIZE, index, maxLen);
+          if(index){ //already sent
+              return 0;
           }
-          bitmap[t] = oneLine.substring(r, oneLine.length()).toInt(); 
-          Serial.printf("%d\n", bitmap[t]);          
-        } else        
-          Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
-      } else {
-        Serial.printf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
-      }
-    }
-    request->send(SPIFFS, "/index.html", String(), false, processor);
+          
+          getCanvasPixels(resp);
+  //        dumpCanvasPixels(resp);
+//          Serial.printf("resp: %s\n", resp);
+          int res = BITMAP_SIZE;//snprintf((char *)buffer, maxLen, "%s", (unsigned char *)resp);
+  //  Copy ten led colors from leds[src .. src+9] to leds[dest .. dest+9]
+          memmove( buffer, &resp, BITMAP_SIZE );
+//          dumpCanvasPixels(buffer);
+//          Serial.printf("buffer: %s\n", buffer);
+          return res;
+      });
+    response->addHeader("Cache-Control", "no-cache");
+    //response->addHeader("Content-Disposition", "attachment; filename=" + String("download.txt"));
+    response->addHeader("Access-Control-Allow-Origin", "*");
+    request->send(response);
   });
 
-// Route for root / web page
-  server.on("/drawer", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/index1.html", String(), false, processor);
+  server.on("/matrix-parameters", HTTP_GET, [](AsyncWebServerRequest *request){
+  // Handling function
+    StaticJsonDocument<100> data;
+    data["width"] = MX_WIDTH;
+    data["height"] = MX_HEIGHT;
+    
+    String response;
+    serializeJson(data, response);
+    request->send(200, "application/json", response);
   });
 
-  // Route to load style.css file
-  server.on("/pixel.js", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/pixel.js", "text/javascript");
-  });
 
-  // Route to set GPIO to HIGH
-  server.on("/pixel", HTTP_POST, [](AsyncWebServerRequest * request) {
-    //    digitalWrite(ledPin, HIGH);
-    //List all parameters
-    int params = request->params();
-    if ( params == 5 ) {
-      int x = request->getParam(0)->value().toInt();
-      int y = request->getParam(1)->value().toInt();      
-      int idx = (x + y * LED_MATRIX_WIDTH) * LED_MATRIX_DEPTH;
-      bitmap[idx] = request->getParam(2)->value().toInt();
-      bitmap[idx+1] = request->getParam(3)->value().toInt();
-      bitmap[idx+2] = request->getParam(4)->value().toInt();
-      
-//      for(int i=0;i<params;i++){
-//        AsyncWebParameter* p = request->getParam(i);
-//        if(p->isPost()){        
-//            Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
+  server.on("/runn", HTTP_POST, [](AsyncWebServerRequest *request){
+    }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+      Serial.printf("/runn:\n");
+      DynamicJsonDocument root(128);
+      DeserializationError err = deserializeJson(root, (const char*)data);
+      if (err == DeserializationError::Ok) {
+        // Get a reference to the root object
+        JsonObject obj = root.as<JsonObject>();
+        if (obj.containsKey("string")) {
+          _runningString = obj["string"].as<String>();//.as<char>();
+        }
+        if (obj.containsKey("speed")) {
+          _runningStringSpeed = obj["speed"].as<int>() | _runningStringSpeed;//.as<char>();
+          scrollTimer.setInterval(_runningStringSpeed);
+        }
+        if (obj.containsKey("active")) {
+          _runningStringActive = obj["active"].as<bool>();// | _runningStringActive;//.as<char>();
+          scrollTimer.pause ( _runningStringActive );
+        }
+        Serial.printf("str = %s, spd = %u, status = %u", _runningString.c_str(), _runningStringSpeed, _runningStringActive );
+  
+        request->send(200, "text/plain", "ack");
+      } else
+        request->send(404, "text/plain", ":(");
+    });
+
+server.on("/draw", HTTP_POST, [](AsyncWebServerRequest *request){
+    //nothing and dont remove it
+  }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+    Serial.printf("/draw: len=%u, idx=%u, ttl=%u\n", len, index, total);
+    int idx = 0;
+    for ( int y = 0; y < MX_HEIGHT; y++ ){
+      for ( int x = 0; x < MX_WIDTH; x++ ){
+        idx = (x + y * MX_WIDTH) * 3;
+  //      if ( 720 < bitmap[idx] + bitmap[idx+1]  + bitmap[idx+2] ){
+  //        leds[ XY(x, y)] = CRGB::Black;
+  //      } else {
+          if ( ( data[idx] >= BG_COLOR_THRESH_MAX  ) && ( data[idx+1]  >= BG_COLOR_THRESH_MAX  ) && ( data[idx+2]  >= BG_COLOR_THRESH_MAX ) ){
+            bitmap[idx] = 0x00;
+            bitmap[idx+1] = 0x00;
+            bitmap[idx+2] = 0x00;            
+          } else {
+            bitmap[idx] = data[idx];
+            bitmap[idx+1] = data[idx+1];
+            bitmap[idx+2] = data[idx+2];            
+          }
+          Serial.printf("%3u,%3u,%3u  ", data[idx], data[idx + 1], data[idx + 2]);
 //        }
-//      }
+      }
+      Serial.println();
     }
-    request->send(SPIFFS, "/index1.html", String(), false, processor);
+    fillCanvas(data);
+    request->send(200, "text/plain", "ack");
   });
 
-  // Route to set GPIO to HIGH
-  server.on("/on", HTTP_GET, [](AsyncWebServerRequest * request) {
-    digitalWrite(ledPin, HIGH);
-    request->send(SPIFFS, "/index.html", String(), false, processor);
+
+
+  
+
+server.on("/pixel", HTTP_POST, [](AsyncWebServerRequest *request){
+    //nothing and dont remove it
+  }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+    Serial.printf("/pixel:\n");
+    DynamicJsonDocument root(128);
+//      JsonObject& root = jsonBuffer.parseObject((const char*)data);
+    DeserializationError err = deserializeJson(root, (const char*)data);
+    if (err == DeserializationError::Ok) {
+      // Get a reference to the root object
+      JsonObject obj = root.as<JsonObject>();
+
+      unsigned char x = obj["x"];//.as<char>();
+      unsigned char y = obj["y"];//.as<char>();
+      unsigned char r = obj["r"];//.as<char>();
+      unsigned char g = obj["g"];//.as<char>();
+      unsigned char b = obj["b"];//.as<char>();
+
+      Serial.printf("(%u:%u) r: %u g: %u b: %u\n\n", x, y, r, g, b);
+        
+      int idx = (x + y * MX_WIDTH) * DEPTH;
+      bitmap[idx] = r;
+      bitmap[idx+1] = g;
+      bitmap[idx+2] = b;
+
+      request->send(200, "text/plain", "ack");
+    } else
+      request->send(404, "text/plain", ":(");
   });
 
-  // Route to set GPIO to LOW
-  server.on("/off", HTTP_GET, [](AsyncWebServerRequest * request) {
-    digitalWrite(ledPin, LOW);
-    request->send(SPIFFS, "/index.html", String(), false, processor);
-  });
+
+
 
   // Start server
   server.begin();  

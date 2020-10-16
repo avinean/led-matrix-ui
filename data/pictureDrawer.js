@@ -177,7 +177,7 @@ app.component('app-picture-drawer', {
             setTimeout(async () => {
                 await this.refresh();
                 this.initRefreshing();
-            }, 1000);
+            }, 50);
         },
         sendData(params) {
             services.drawSinglePixel(params);
