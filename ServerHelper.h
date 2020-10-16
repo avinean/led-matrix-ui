@@ -34,7 +34,9 @@ void setupServer(){
   // Print ESP32 Local IP Address
   Serial.println(WiFi.localIP());
 
-  setupDefaultEndpoints(&server);
+  // I guess this string can work the same way as setupDefaultEndpoints(&server)
+  server.serveStatic("/", SPIFFS, "/data/").setDefaultFile("index.html");
+  // setupDefaultEndpoints(&server);
 
   server.on("/get_pixel", HTTP_GET, [](AsyncWebServerRequest *request){
     Serial.printf("/matrix-state[%u]", BITMAP_SIZE);
@@ -105,9 +107,9 @@ void setupServer(){
   });
 
 
-  server.on("/runn", HTTP_POST, [](AsyncWebServerRequest *request){
+  server.on("/running-text", HTTP_POST, [](AsyncWebServerRequest *request){
     }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
-      Serial.printf("/runn:\n");
+      Serial.printf("/running-text:\n");
       DynamicJsonDocument root(128);
       DeserializationError err = deserializeJson(root, (const char*)data);
       if (err == DeserializationError::Ok) {
