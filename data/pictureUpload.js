@@ -19,6 +19,7 @@ app.component('app-picture-upload', {
                         ref="canvas"
                         width="16"
                         height="16"
+                        hidden
                     ></canvas>
                 </div>
             </div>

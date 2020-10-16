@@ -13,14 +13,14 @@ const app = Vue.createApp({
                     icon: 'keyboard outline',
                 },
                 {
-                    key: 'Effects for picture',
-                    label: 'Effects for picture',
-                    icon: 'film'
-                },
-                {
                     key: 'Animations',
                     label: 'Animations',
                     icon: 'play'
+                },
+                {
+                    key: 'Effects for picture',
+                    label: 'Effects for picture',
+                    icon: 'film'
                 }
             ],
             currentTab: 'Picture',

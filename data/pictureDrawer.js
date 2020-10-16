@@ -1,25 +1,31 @@
 app.component('app-picture-drawer', {
     template: `
-        <h4 class="ui horizontal divider header">
-            <i class="bar pencil icon"></i>
-            Draw a picture
-        </h4>
-        <div class="ui card" style="width: auto;">
-        <div class="content">
-            <div ref="wrapper">
-                <div class="upload__button">
-                    <button
-                        class="ui right labeled icon button green"
-                        @click="isFillMode = true; picker.show();"
-                    >
-                        <i class="eye dropper icon"></i>
-                        Fill field
-                    </button>
+        <template v-if="!disabled">
+            <h4 class="ui horizontal divider header">
+                <i class="bar pencil icon"></i>
+                Draw a picture
+            </h4>
+            <div class="ui card" style="width: auto;">
+                <div class="content">
+                    <div ref="wrapper">
+                        <div class="upload__button">
+                            <button
+                                class="ui right labeled icon button green"
+                                @click="isFillMode = true; picker.show();"
+                            >
+                                <i class="eye dropper icon"></i>
+                                Fill field
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
-        <div class="ui card" style="width: auto;">
+        </template>
+        <div
+            class="ui card"
+            style="width: auto;"
+            :style="disabled ? 'pointer-events: none;' : ''"
+        >
             <div class="content">
                 <div ref="colorPicker"></div>
                 <div
@@ -51,6 +57,9 @@ app.component('app-picture-drawer', {
             </div>
         </div>
     `,
+    props: {
+        disabled: Boolean,
+    },
     data() {
         return {
             currentColor: 'rgb(0, 0, 0, 0)',
@@ -72,6 +81,8 @@ app.component('app-picture-drawer', {
             charSize: 0,
             picker: null,
             isFillMode: false,
+            timer: null,
+            bindedRefresh: null,
         };
     },
     watch: {
@@ -174,7 +185,7 @@ app.component('app-picture-drawer', {
             })
         },
         initRefreshing() {
-            setTimeout(async () => {
+            this.timer = setTimeout(async () => {
                 await this.refresh();
                 this.initRefreshing();
             }, 1000);
@@ -202,14 +213,18 @@ app.component('app-picture-drawer', {
         }
     },
     async mounted() {
-        observer.on(IMG_UPLOADED, () => {
-            this.refresh();
-        });
+        this.bindedRefresh = this.refresh.bind(this);
+        
+        observer.on(IMG_UPLOADED, this.bindedRefresh);
 
         await this.getMatrixParameters();
         this.initMatrix();
         this.initPicker();
         this.calculateCharSize();
         this.initRefreshing();
+    },
+    unmounted() {
+        observer.remove(IMG_UPLOADED, this.bindedRefresh);
+        clearTimeout(this.timer);
     }
 });

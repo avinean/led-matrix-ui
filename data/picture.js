@@ -4,9 +4,4 @@ app.component('app-picture', {
         <app-picture-upload />
         <app-picture-gallery />
     `,
-    data() {
-        return {
-
-        };
-    }
 });
