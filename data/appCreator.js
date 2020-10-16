@@ -26,4 +26,14 @@ const app = Vue.createApp({
             currentTab: 'Picture',
         };
     },
+    watch: {
+        currentTab() {
+            localStorage.currentTab = this.currentTab;
+        }
+    },
+    mounted() {
+        if (localStorage.currentTab) {
+            this.currentTab = localStorage.currentTab;
+        } 
+    }
 });
