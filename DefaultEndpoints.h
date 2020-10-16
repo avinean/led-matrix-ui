@@ -16,6 +16,11 @@ void setupDefaultEndpoints ( AsyncWebServer* server ){
   server->on("/animations.js", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(SPIFFS, "/animations.js", "text/javascript");
   });
+ 
+  // Route to load style.css file
+  server->on("/animationUpload.js", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(SPIFFS, "/animationUpload.js", "text/javascript");
+  });
 
 // Route to load style.css file
   server->on("/appCreator.js", HTTP_GET, [](AsyncWebServerRequest * request) {
@@ -50,6 +55,11 @@ void setupDefaultEndpoints ( AsyncWebServer* server ){
 // Route to load style.css file
   server->on("/pictureUpload.js", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(SPIFFS, "/pictureUpload.js", "text/javascript");
+  });    
+
+// Route to load style.css file
+  server->on("/text.js", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(SPIFFS, "/text.js", "text/javascript");
   });          
 
 // Route to load style.css file
@@ -59,6 +69,10 @@ void setupDefaultEndpoints ( AsyncWebServer* server ){
 // Route to load style.css file
   server->on("/services.js", HTTP_GET, [](AsyncWebServerRequest * request) {
     request->send(SPIFFS, "/services.js", "text/javascript");
+  });              
+// Route to library for prsing gifs
+  server->on("/libs/libgif.js", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(SPIFFS, "/libs/libgif.js", "text/javascript");
   });              
 }
 
