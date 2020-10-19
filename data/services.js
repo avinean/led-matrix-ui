@@ -63,6 +63,17 @@ class Services {
     });
   }
 
+  playGame(params) {
+    return fetch('/games', {
+      method: 'POST',
+      body: JSON.stringify(params),
+    });
+  }
+
+  control(action) {
+    fetch('/control/' + action, { method: 'POST',});
+  }
+
 }
 
 const services = new Services();

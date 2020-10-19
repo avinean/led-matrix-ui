@@ -49,6 +49,11 @@ app.post('/clock', (req, res) => {
   res.sendStatus(200)
 })
 
+app.post('/games', (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200)
+})
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })

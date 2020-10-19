@@ -82,6 +82,7 @@ app.component('app-picture-drawer', {
             picker: null,
             isFillMode: false,
             timer: null,
+            timeDelay: 1000,
             bindedRefresh: null,
         };
     },
@@ -188,7 +189,7 @@ app.component('app-picture-drawer', {
             this.timer = setTimeout(async () => {
                 await this.refresh();
                 this.initRefreshing();
-            }, 50);
+            }, this.timeDelay);
         },
         sendData(params) {
             services.drawSinglePixel(params);
@@ -225,6 +226,9 @@ app.component('app-picture-drawer', {
     },
     unmounted() {
         observer.remove(IMG_UPLOADED, this.bindedRefresh);
-        clearTimeout(this.timer);
+
+        setTimeout(() => {
+            clearTimeout(this.timer);
+        }, this.timeDelay + 1000);
     }
 });

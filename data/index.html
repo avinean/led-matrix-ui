@@ -52,8 +52,14 @@
             >
                 <app-animations></app-animations>
             </div>
+            <div
+                v-if="currentTab === 'Games'"
+                class="ui segment"
+            >
+                <app-games></app-games>
+            </div>
             
-            <div class="ui four item menu main__menu">
+            <div class="ui five item menu main__menu">
                 <a
                     v-for="tab in tabs"
                     class="item green"
@@ -83,6 +89,8 @@
 
     <script src="./animationUpload.js"></script>
     <script src="./animations.js"></script>
+
+    <script src="./games.js"></script>
 
     <script src="./appMounter.js"></script>
 </body>

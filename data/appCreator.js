@@ -21,9 +21,14 @@ const app = Vue.createApp({
                     key: 'Effects for picture',
                     label: 'Effects for picture',
                     icon: 'film'
+                },
+                {
+                    key: 'Games',
+                    label: 'games',
+                    icon: 'chess'
                 }
             ],
-            currentTab: 'Picture',
+            currentTab: '',
         };
     },
     watch: {
@@ -33,7 +38,7 @@ const app = Vue.createApp({
     },
     mounted() {
         if (localStorage.currentTab) {
-            this.currentTab = localStorage.currentTab;
+            this.currentTab = localStorage.currentTab || 'Picture';
         } 
     }
 });
