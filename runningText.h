@@ -1,3 +1,5 @@
+#ifndef _RUNNINGTEXT_H_
+#define _RUNNINGTEXT_H_
 // работа с бегущим текстом
 
 #include "font.h"
@@ -80,13 +82,7 @@ void drawLetter(uint8_t index, uint8_t letter, int16_t offset, uint32_t color) {
 // ------------- СЛУЖЕБНЫЕ ФУНКЦИИ --------------
 
 
-#elif (USE_FONTS == 0)
-void fillString(String text, uint32_t color) {
-  fullTextFlag = false;
-  modeCode = MC_TEXT;
-  return;
-}
-#endif
+
 
 /*
   // интерпретатор кода символа по ASCII в его номер в массиве fontHEX (для Arduino IDE до 1.6.*)
@@ -102,16 +98,18 @@ void fillString(String text, uint32_t color) {
     offset = MX_WIDTH;   // перемотка в правый край
     loadingFlag = false;    
 #if (SMOOTH_CHANGE == 1)
-    loadingFlag = modeCode == MC_TEXT && fadeMode < 2 ;
+    loadingFlag = __CURRENT_MODE == __MODE_TEXT && fadeMode < 2 ;
 #else
     loadingFlag = false;        
 #endif
-    modeCode = MC_TEXT;
+    __CURRENT_MODE = __MODE_TEXT;
     fullTextFlag = false;
   }
   
   if (scrollTimer.isReady()) {
     FastLED.clear();
+    fill_solid(leds, NUM_LEDS, __RUNNING_STRING_BACKGROUND_COLOR);
+//    FastLED.showColor(__RUNNING_STRING_BACKGROUND_COLOR);
     byte i = 0, j = 0;
     while (text[i] != '\0') {
       if ((byte)text[i] > 191) {    // работаем с русскими буквами!
@@ -135,3 +133,13 @@ void fillString(String text, uint32_t color) {
     // FastLED.show(); 
   }
 }
+
+#elif (USE_FONTS == 0)
+void fillString(String text, uint32_t color) {
+  fullTextFlag = false;
+  __CURRENT_MODE = __MODE_TEXT;
+  return;
+}
+#endif
+
+#endif //_RUNNINGTEXT_H_

@@ -82,7 +82,7 @@ app.component('app-picture-drawer', {
             picker: null,
             isFillMode: false,
             timer: null,
-            timeDelay: 1000,
+            timeDelay: 5000,
             bindedRefresh: null,
         };
     },
