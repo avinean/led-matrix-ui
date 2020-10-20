@@ -36,7 +36,7 @@ void snakeRoutine() {
     loadingFlag = false;
     newGameSnake();
     gamemodeFlag = true;
-    modeCode = MC_GAME;
+    __CURRENT_MODE = __MODE_GAME;
   }  
   
   buttonsTickSnake();

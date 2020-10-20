@@ -71,7 +71,7 @@ class Services {
   }
 
   control(action) {
-    fetch('/control/' + action, { method: 'POST',});
+    fetch('/' + action, { method: 'POST',});
   }
 
 }

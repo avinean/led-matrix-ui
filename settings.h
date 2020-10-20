@@ -2,21 +2,16 @@
 #define _SETTINGS_H_
 
 // SSID & Password
-const char* ssid = "Keenetic-1933";  // Enter your SSID here
-const char* password = "sMTVCwBP";  //Enter your Password here
+const char* ssid = "AndroidAP";//"Keenetic-1933";  // Enter your SSID here
+const char* password = "01234567";//"sMTVCwBP";  //Enter your Password here
 
+// Set these to your desired credentials.
+const char *Apssid = "dreamer-led-AP";     //Give AccessPoint name whatever you like. (this will be Name of your esp32 HOTSPOT)
+const char *Appassword = "01234567";         //Password of your Esp32's hotspot,(minimum length 8 required)
 
-// включение / отключение игр
+#define USE_FONTS 1
 #define USE_SNAKE 1         // игра змейка (0 нет, 1 да)
-boolean gamemodeFlag = false;      // флаг: текущий режим - игра
-boolean controlFlag = false;       // флаг: управление игрой перехвачено с кнопок или смартфона
-boolean gamePaused;                // флаг: игра приостановлена
-boolean gameDemo = true;           // флаг: игра в демо-режиме
-#define MC_GAME                  2
-#define DEMO_GAME_SPEED 60    // скорость игр в демо режиме (мс)
 
-byte frameNum;                     // Номер фрейма проигрывания анимации
-byte buttons = 4;                  // Управление играми: нажата кнопка: 0 - верх, 1 - право, 2 - низ, 3 - лево, 4 - не нажата
 
 
 // о поддерживаемых цветах читай тут https://alexgyver.ru/gyvermatrixos-guide/
@@ -46,7 +41,7 @@ const bool    kMatrixSerpentineLayout = true;
 #define COLOR_ORDER GRB
 #define CHIPSET     WS2812
 
-#define BRIGHTNESS 8 
+#define BRIGHTNESS 4 
 
 // **************** НАСТРОЙКА МАТРИЦЫ ****************
 #if (CONNECTION_ANGLE == 0 && STRIP_DIRECTION == 0)
@@ -106,17 +101,10 @@ const bool    kMatrixSerpentineLayout = true;
 
 
 
-// ID типа эффектов (тип группы - текст, игры имеют один ID типа на все подтипы)
-#define MC_TEXT                  0
-#define MC_CLOCK                 1
 
-#define USE_FONTS 1
 
-boolean fullTextFlag = false;      // флаг: текст бегущей строки показан полностью (строка убежала)
 byte modeCode;                     // тип текущего эффекта: 0 бегущая строка, 1 часы, 2 игры, 3 нойс маднесс и далее, 21 гифка или картинка,
 int8_t thisMode = 0;               // текущий режим
-
-boolean loadingFlag = true;        // флаг: выполняется инициализация параметров режима
 
 
 #endif // _SETTINGS_H_
