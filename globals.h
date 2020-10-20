@@ -15,6 +15,7 @@ unsigned char bitmap[BITMAP_SIZE];
 // тип текущего эффекта: 0 бегущая строка, 1 часы, 2 игры, 3 нойс маднесс и далее, 21 гифка или картинка
 unsigned char __CURRENT_MODE = __MODE_CANVAS;//__MODE_TEXT;
 
+
 boolean loadingFlag = true;        // флаг: выполняется инициализация параметров режима
 
 #define GAME_NAME_SIZE 10

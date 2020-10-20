@@ -13,7 +13,6 @@ const char *Appassword = "01234567";         //Password of your Esp32's hotspot,
 #define USE_SNAKE 1         // игра змейка (0 нет, 1 да)
 
 
-
 // о поддерживаемых цветах читай тут https://alexgyver.ru/gyvermatrixos-guide/
 #define GLOBAL_COLOR_1 CRGB::Green    // основной цвет №1 для игр
 #define GLOBAL_COLOR_2 CRGB::Orange   // основной цвет №2 для игр
