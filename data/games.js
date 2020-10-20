@@ -122,6 +122,15 @@ app.component('app-games', {
         },
         left() {
             services.control('left')
+        },
+        watchKeys(e) {
+            const keys = {
+                37: 'left',
+                38: 'up',
+                39: 'right',
+                40: 'down',
+            }
+            services.control(keys[e.keyCode]);
         }
     },
     mounted() {
@@ -131,5 +140,10 @@ app.component('app-games', {
                 this.currentGame = value;
             }
         });
+
+        document.addEventListener('keydown', this.watchKeys);
+    },
+    unmounted() {
+        document.removeEventListener('keydown', this.watchKeys);
     }
 });
