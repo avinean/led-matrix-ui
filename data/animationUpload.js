@@ -14,7 +14,7 @@ app.component('app-animation-upload', {
                           <input type="file" ref="uploader" hidden @change="handleFileSelect" accept="image/gif"/>
                       </label >
                   </div>
-                  <img ref="imgRoot" hidden/>
+                  <img ref="imgRoot" style="display: none;"/>
               </div>
           </div>
       </div>

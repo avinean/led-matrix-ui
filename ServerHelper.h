@@ -73,7 +73,7 @@ void setupServer(){
   server.serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
   
 // Управление играми: нажата кнопка: 0 - верх, 1 - право, 2 - низ, 3 - лево, 4 - не нажата
-<<<<<<< HEAD
+// <<<<<<< HEAD
   server.on("/up", HTTP_POST, [](AsyncWebServerRequest *request){
     Serial.printf("/up\n");
     buttons = 0;
