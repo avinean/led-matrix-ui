@@ -7,7 +7,7 @@ const port = 2832
 
 const store = {};
 
-app.use(express.static(path.join(__dirname, '../data')))
+app.use(express.static(path.join(__dirname, '../dreamer/dist')))
 app.use(bodyParser.raw({limit: '50mb'}))
 app.use(bodyParser.json())
 app.use(cors())
