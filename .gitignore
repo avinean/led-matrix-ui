@@ -1,2 +1,5 @@
 /echo-server/node_modules/
 /dreamer/node_modules/
+/dreamer/dist/
+/data/.idea/
+/.idea/
