@@ -62,7 +62,7 @@
 
 <script>
 import services from '../../utils/services';
-import { observer, IMG_UPLOADED } from '../../utils/observer';
+import { store, IMG_UPLOADED } from '../../utils/store';
 import Picker from 'vanilla-picker';
 
 export default {
@@ -226,7 +226,7 @@ export default {
     mounted() {
         this.bindedRefresh = this.refresh.bind(this);
         
-        observer.on(IMG_UPLOADED, this.bindedRefresh);
+        store.on(IMG_UPLOADED, this.bindedRefresh);
 
         this.getMatrixParameters().then(() => {
             this.initMatrix();
@@ -236,7 +236,7 @@ export default {
         });
     },
     unmounted() {
-        observer.remove(IMG_UPLOADED, this.bindedRefresh);
+        store.remove(IMG_UPLOADED, this.bindedRefresh);
 
         setTimeout(() => {
             clearTimeout(this.timer);

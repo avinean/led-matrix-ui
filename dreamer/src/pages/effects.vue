@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import { EFFECT_SPEED, store } from "../utils/store";
+
 export default {
     name: 'app-effects',
     data() {
@@ -51,16 +53,23 @@ export default {
                 6: 'effect 7',
             },
             speedConfig: {
-                min: 0,
+                min: 1,
                 max: 6,
                 start: 3,
                 onChange: (value) => {
                     this.speed = value;
                 },
-            }
+            },
+            second: 1000
         };
     },
+    watch: {
+        speed() {
+            store.set(EFFECT_SPEED, this.speed * this.second);
+        }
+    },
     mounted() {
+        this.speedConfig.start = store.get(EFFECT_SPEED) / this.second;
         $('.ui.dropdown').dropdown();
         $('.ui.range').range(this.speedConfig);
     }

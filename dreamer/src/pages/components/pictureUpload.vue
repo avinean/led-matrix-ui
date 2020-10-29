@@ -11,7 +11,14 @@
                         <label class="ui right labeled icon button primary">
                             <i class="image icon"></i>
                             Upload image
-                            <input type="file" ref="uploader" hidden @change="handleFileSelect" accept="image/jpeg"/>
+                            <input
+                                type="file"
+                                ref="uploader"
+                                hidden
+                                accept="image/jpeg"
+                                multiple
+                                @change="handleFileSelect"
+                            />
                         </label >
                     </div>
                     <canvas
@@ -29,13 +36,14 @@
 
 <script>
 import services from '../../utils/services';
-import { observer, IMG_CHOSEN_FROM_GALLERY } from '../../utils/observer';
+import {store, IMG_CHOSEN_FROM_GALLERY, IMGS_CHOSEN_FROM_GALLERY, EFFECT_SPEED} from '../../utils/store';
 
 export default {
     name: 'app-picture-upload',
     data() {
         return {
             image: new Image(),
+            imageList: [],
             imgData: null,
             imgLoaded: false,
             OUT_WIDTH: 0,
@@ -44,6 +52,11 @@ export default {
                 height: 0,
                 width: 0,
             },
+
+            slideShowTimer: null,
+
+            drawPictureFromGalleryBind: this.drawPictureFromGallery.bind(this),
+            drawPicturesFromGalleryBind: this.drawPicturesFromGallery.bind(this),
         };
     },
     computed: {
@@ -67,18 +80,35 @@ export default {
         },
     },
     methods: {
-        handleFileSelect(event){
-            const [ file ] = event.target.files;
-            if(!file) return;
-            
-            if(file.type !== '' && !file.type.match('image.*')) return;
-            
+        handleFileSelect (event) {
+            const [file] = event.target.files;
+            if (!file) return;
+
+            if (event.target.files.length === 1) {
+                this.checkFile(file);
+            } else {
+                let index = 0;
+                clearInterval(this.slideShowTimer);
+                this.slideShowTimer = setInterval(() => {
+                    let file = event.target.files[index];
+                    if (!file) index = 0;
+                    file = event.target.files[index];
+
+                    this.checkFile(file);
+
+                    index++;
+                }, store.get(EFFECT_SPEED));
+            }
+        },
+        checkFile(file) {
+            if (file.type !== '' && !file.type.match('image.*')) return;
+
             window.URL = window.URL || window.webkitURL;
-            
-            var imageURL = window.URL.createObjectURL(file);
+
+            const imageURL = window.URL.createObjectURL(file);
             this.loadAndDrawImage(imageURL);
         },
-        loadAndDrawImage(url) {
+        loadAndDrawImage (url) {
             this.image = new Image();
             this.image.addEventListener('load', () => {
                 this.drawImage();
@@ -86,18 +116,18 @@ export default {
             });
             this.image.src = url;
         },
-        drawImage() {
+        drawImage () {
             const wrapper = this.$refs.wrapper;
-            let { width } = wrapper.getBoundingClientRect();
+            let {width} = wrapper.getBoundingClientRect();
             if (width > 600) width = 600;
 
             const canvas = this.$refs.canvas;
             const context = canvas.getContext("2d");
-        
+
             const imgWidth = this.image.width;
             const imgHeight = this.image.height;
             const imgRatio = imgWidth / imgHeight;
-      
+
             let xOffset = 0;
             let yOffset = 0;
             if (imgHeight !== imgWidth) {
@@ -109,49 +139,66 @@ export default {
                 }
             }
 
-            console.log(xOffset, yOffset)
-      
             this.OUT_WIDTH = this.matrixParams.width;
             this.OUT_HEIGTH = this.matrixParams.height;
 
-            canvas.width  = this.matrixParams.width;
+            canvas.width = this.matrixParams.width;
             canvas.height = this.matrixParams.height;
-        
+
             context.drawImage(this.image, 0, 0, canvas.width, canvas.height, xOffset, yOffset, canvas.width, canvas.height);
-        
+
             this.imgData = context.getImageData(0, 0, canvas.width, canvas.height);
 
             this.sendImgData();
         },
-        getPixel(imageData, x, y) {
-            var index = (x + y * imageData.width) * 4;
+        getPixel (imageData, x, y) {
+            const index = (x + y * imageData.width) * 4;
             return {
-                r: imageData.data[index+0], 
-                g: imageData.data[index+1], 
-                b: imageData.data[index+2], 
-                a: imageData.data[index+3],
+                r: imageData.data[index],
+                g: imageData.data[index + 1],
+                b: imageData.data[index + 2],
+                a: imageData.data[index + 3],
             };
         },
-        getMatrixParameters() {
+        getMatrixParameters () {
             return services.getMatrixParameters()
                 .then(params => {
                     this.matrixParams = params;
                 });
         },
-        sendImgData() {
+        sendImgData () {
             const body = new Blob([this.OUT_SRC], {type: "octet/stream"});
             services.sendImgData(body);
-        }
+        },
+        drawPictureFromGallery (image, notClear) {
+            if (image instanceof Image) {
+                !notClear && clearInterval(this.slideShowTimer);
+                this.image = image;
+                this.drawImage();
+            }
+        },
+        drawPicturesFromGallery (images) {
+            let index = 0;
+            clearInterval(this.slideShowTimer);
+            this.slideShowTimer = setInterval(() => {
+                let img = images[index];
+                if (!img) index = 0;
+                img = images[index];
+                this.drawPictureFromGallery(img, 1);
+                index++;
+            }, store.get(EFFECT_SPEED));
+        },
     },
     mounted() {
         this.getMatrixParameters();
 
-        observer.on(IMG_CHOSEN_FROM_GALLERY, image => {
-            if (image instanceof Image) {
-                this.image = image;
-                this.drawImage();
-            }
-        });
+        store.on(IMG_CHOSEN_FROM_GALLERY, this.drawPictureFromGalleryBind);
+        store.on(IMGS_CHOSEN_FROM_GALLERY, this.drawPicturesFromGalleryBind);
+    },
+    unmounted () {
+        clearInterval(this.slideShowTimer);
+        store.remove(IMG_CHOSEN_FROM_GALLERY, this.drawPictureFromGalleryBind);
+        store.remove(IMGS_CHOSEN_FROM_GALLERY, this.drawPicturesFromGalleryBind);
     }
 }
 </script>

@@ -1,6 +1,6 @@
-import { observer, IMG_UPLOADED } from './observer';
+import { store, IMG_UPLOADED } from './store';
 
-const BASE_URI = location.host ===  "localhost:3000" ? 'http://localhost:2832' : '';
+const BASE_URI = location.host ===  "localhost:3001" ? 'http://localhost:2832' : '';
 
 class Services {
 
@@ -22,7 +22,7 @@ class Services {
       },  
       body,
     }).then(() => {
-      observer.emit(IMG_UPLOADED);
+      store.emit(IMG_UPLOADED);
     });
   }
 

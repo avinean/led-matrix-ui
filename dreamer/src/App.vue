@@ -103,5 +103,5 @@ export default {
   margin-top: 1.14285714em;
 }
 
-.mb-10 { margin-bottom: 10px;}
+.mb-10 { margin-bottom: 10px !important;}
 </style>
