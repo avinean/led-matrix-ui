@@ -14,15 +14,6 @@ class Services {
     })
   }
 
-  clearImgData({ width, height }) {
-    const byteArray = new Uint8Array(width * height * 3);
-    byteArray.forEach((i, j) => byteArray[j] = 0);
-
-    const body = new Blob([byteArray], {type: "octet/stream"});
-    
-    return this.sendImgData(body);
-  }
-
   sendImgData(body) {    
     return fetch(BASE_URI + '/draw', {  
       method: 'POST',  
@@ -47,21 +38,25 @@ class Services {
   }
 
   drawSinglePixel(params) {
-    fetch(BASE_URI + '/pixel', {
+    return fetch(BASE_URI + '/pixel', {
       method: 'POST',
       body: JSON.stringify(params),
     });
   }
 
+  getImagesFromGallery() {
+    return fetch('https://dreamer-led.000webhostapp.com').then(res => res.json());
+  }
+
   setRunningText(params) {
-    fetch(BASE_URI + '/running-text', {
+    return fetch(BASE_URI + '/running-text', {
       method: 'POST',
       body: JSON.stringify(params),
     });
   }
 
   setClock(params) {
-    fetch(BASE_URI + '/clock', {
+    return fetch(BASE_URI + '/clock', {
       method: 'POST',
       body: JSON.stringify(params),
     });
@@ -76,7 +71,7 @@ class Services {
 
   control(action) {
     if (!action) return;
-    fetch(BASE_URI + '/' + action, { method: 'POST',});
+    return fetch(BASE_URI + '/' + action, { method: 'POST',});
   }
 
 }

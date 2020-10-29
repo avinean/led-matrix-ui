@@ -34,3 +34,4 @@ export const observer = {
 }
 
 export const IMG_UPLOADED = 'IMG_UPLOADED';
+export const IMG_CHOSEN_FROM_GALLERY = 'IMG_CHOSEN_FROM_GALLERY';

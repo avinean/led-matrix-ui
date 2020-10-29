@@ -10,11 +10,15 @@
                     v-if="images.length"
                     class="ui small images mb-10"
                 >
-                    <img
+                    <span
                         v-for="image in images"
                         :key="image"
-                        :src="image"
-                    />
+                    >
+                        <img
+                            :src="'https://dreamer-led.000webhostapp.com/image.php?image=' + image"
+                            @click="drawImage"
+                        />
+                    </span>
                 </div>
                 <div
                     class="upload__button mb-10"
@@ -36,6 +40,9 @@
 </template>
 
 <script>
+import services from '../../utils/services';
+import { observer, IMG_CHOSEN_FROM_GALLERY } from '../../utils/observer';
+
 export default {
     name: 'app-picture-gallery',
     data() {
@@ -47,17 +54,32 @@ export default {
     methods: {
         loadGallery() {
             this.loading = true;
-            setTimeout(() => {
-                this.images = [...this.images, ...[
-                    "https://myrusakov.ru/images/avatars/54d0990fd00d7.jpeg",
-                    "https://myrusakov.ru/images/avatars/54d0990fd00d7.jpeg",
-                    "https://myrusakov.ru/images/avatars/54d0990fd00d7.jpeg",
-                    "https://myrusakov.ru/images/avatars/54d0990fd00d7.jpeg",
-                ]];
 
-                this.loading = false;
-            }, 2000);
+            services.getImagesFromGallery().then((response) => {
+              if (response.imageList.length) {
+                this.images = response.imageList;
+              }
+            }).finally(() => {
+              this.loading = false;
+            });
+        },
+        drawImage({ target }) {
+            const image = target;
+            image.crossOrigin = "Anonymous";
+            observer.emit(IMG_CHOSEN_FROM_GALLERY, image);
         }
     }
 }
 </script>
+
+<style>
+.images {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.images > span {
+  margin-bottom: 10px;
+}
+</style>

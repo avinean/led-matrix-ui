@@ -29,6 +29,7 @@
 
 <script>
 import services from '../../utils/services';
+import { observer, IMG_CHOSEN_FROM_GALLERY } from '../../utils/observer';
 
 export default {
     name: 'app-picture-upload',
@@ -144,6 +145,13 @@ export default {
     },
     mounted() {
         this.getMatrixParameters();
+
+        observer.on(IMG_CHOSEN_FROM_GALLERY, image => {
+            if (image instanceof Image) {
+                this.image = image;
+                this.drawImage();
+            }
+        });
     }
 }
 </script>
