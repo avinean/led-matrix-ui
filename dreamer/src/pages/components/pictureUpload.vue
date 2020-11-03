@@ -45,7 +45,6 @@ export default {
             image: new Image(),
             imageList: [],
             imgData: null,
-            imgLoaded: false,
             OUT_WIDTH: 0,
             OUT_HEIGTH: 0,
             matrixParams: {
@@ -85,19 +84,28 @@ export default {
             if (!file) return;
 
             if (event.target.files.length === 1) {
-                this.checkFile(file);
+                this.loadAndDrawImage(this.checkFile(file));
             } else {
                 let index = 0;
-                clearInterval(this.slideShowTimer);
-                this.slideShowTimer = setInterval(() => {
-                    let file = event.target.files[index];
-                    if (!file) index = 0;
-                    file = event.target.files[index];
-
-                    this.checkFile(file);
-
+                const srcList = []
+                const timer = setInterval(() => {
+                    let img = event.target.files[index];
+                    if (!img) {
+                        clearInterval(timer);
+                        return;
+                    }
+                    this.loadAndDrawImage(
+                        this.checkFile(img),
+                        (image) => {
+                            srcList.push(this.drawImage(image));
+                            if (srcList.length === event.target.files.length) {
+                                console.log(srcList)
+                                this.sendMultiImgData(srcList);
+                            }
+                        }
+                    )
                     index++;
-                }, store.get(EFFECT_SPEED));
+                }, 100);
             }
         },
         checkFile(file) {
@@ -105,18 +113,21 @@ export default {
 
             window.URL = window.URL || window.webkitURL;
 
-            const imageURL = window.URL.createObjectURL(file);
-            this.loadAndDrawImage(imageURL);
+            return window.URL.createObjectURL(file);
         },
-        loadAndDrawImage (url) {
+        loadAndDrawImage (url, cb) {
             this.image = new Image();
             this.image.addEventListener('load', () => {
-                this.drawImage();
-                this.imgLoaded = true;
+                if (cb) {
+                    cb(this.image);
+                } else {
+                    this.drawImage();
+                }
             });
             this.image.src = url;
         },
-        drawImage () {
+        drawImage (image) {
+            if (image) this.image = image;
             const wrapper = this.$refs.wrapper;
             let {width} = wrapper.getBoundingClientRect();
             if (width > 600) width = 600;
@@ -149,7 +160,11 @@ export default {
 
             this.imgData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-            this.sendImgData();
+            if (!image) {
+                this.sendImgData();
+            }
+
+            return this.OUT_SRC;
         },
         getPixel (imageData, x, y) {
             const index = (x + y * imageData.width) * 4;
@@ -170,23 +185,28 @@ export default {
             const body = new Blob([this.OUT_SRC], {type: "octet/stream"});
             services.sendImgData(body);
         },
-        drawPictureFromGallery (image, notClear) {
-            if (image instanceof Image) {
-                !notClear && clearInterval(this.slideShowTimer);
-                this.image = image;
-                this.drawImage();
-            }
+        sendMultiImgData (srcList) {
+            const body = new Blob(srcList, {type: "octet/stream"});
+            services.sendMultiImgData(body);
+        },
+        drawPictureFromGallery (image) {
+            this.image = image;
+            this.drawImage();
         },
         drawPicturesFromGallery (images) {
             let index = 0;
-            clearInterval(this.slideShowTimer);
-            this.slideShowTimer = setInterval(() => {
+            const srcList = []
+            const timer = setInterval(() => {
                 let img = images[index];
-                if (!img) index = 0;
-                img = images[index];
-                this.drawPictureFromGallery(img, 1);
+                if (!img) {
+                    console.log(srcList)
+                    this.sendMultiImgData(srcList);
+                    clearInterval(timer);
+                    return;
+                }
+                srcList.push(this.drawImage(img));
                 index++;
-            }, store.get(EFFECT_SPEED));
+            }, 100);
         },
     },
     mounted() {
@@ -196,7 +216,6 @@ export default {
         store.on(IMGS_CHOSEN_FROM_GALLERY, this.drawPicturesFromGalleryBind);
     },
     unmounted () {
-        clearInterval(this.slideShowTimer);
         store.remove(IMG_CHOSEN_FROM_GALLERY, this.drawPictureFromGalleryBind);
         store.remove(IMGS_CHOSEN_FROM_GALLERY, this.drawPicturesFromGalleryBind);
     }

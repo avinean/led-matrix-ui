@@ -26,6 +26,18 @@ class Services {
     });
   }
 
+  sendMultiImgData(body) {
+    return fetch(BASE_URI + '/draw-multiple', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+      body,
+    }).then(() => {
+      store.emit(IMG_UPLOADED);
+    });
+  }
+
   getMatrixState() {
     return fetch(BASE_URI + '/matrix-state').then(response => {
       const reader = response.body.getReader();
