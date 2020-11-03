@@ -21,17 +21,6 @@ export default {
   font-family: sans-serif;
 }
 
-.main {
-  padding: 20px 0 50px;
-}
-
-.main__menu {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
 .picture__row {
   display: flex;
 }

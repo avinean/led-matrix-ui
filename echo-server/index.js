@@ -56,6 +56,23 @@ app.post('/games', (req, res) => {
   res.sendStatus(200)
 })
 
+app.get('/picture-effects', (req, res) => {
+  res.send([
+    'effect 1',
+    'effect 2',
+    'effect 3',
+    'effect 4',
+    'effect 5',
+    'effect 6',
+    'effect 7',
+  ]);
+})
+
+app.post('/picture-effects', (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200);
+})
+
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`)
 })

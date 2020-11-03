@@ -10,10 +10,10 @@
                     <select ref="dropdown" class="ui search dropdown">
                         <option value="">Select effect</option>
                         <option
-                            v-for="(label, value) in effectsList"
-                            :key="label"
-                            :value="value"
-                        >{{ label }}</option>
+                            v-for="effect in effectsList"
+                            :key="effect"
+                            :value="effect"
+                        >{{ effect }}</option>
                     </select>
                 </div>
             </div>
@@ -31,11 +31,25 @@
                 </div>
             </div>
         </div>
+        <div class="ui card" style="width: auto;">
+            <div class="content">
+                <div class="upload__button">
+                    <button
+                        class="ui right labeled icon button green"
+                        @click="apply"
+                    >
+                        <i class="check icon"></i>
+                        Apply
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 import { EFFECT_SPEED, store } from "../utils/store";
+import services from "../utils/services";
 
 export default {
     name: 'app-effects',
@@ -43,15 +57,15 @@ export default {
         return {
             selectedEffect: 0,
             speed: 5,
-            effectsList: {
-                0: 'effect 1',
-                1: 'effect 2',
-                2: 'effect 3',
-                3: 'effect 4',
-                4: 'effect 5',
-                5: 'effect 6',
-                6: 'effect 7',
-            },
+            effectsList: [
+                'effect 1',
+                'effect 2',
+                'effect 3',
+                'effect 4',
+                'effect 5',
+                'effect 6',
+                'effect 7',
+            ],
             speedConfig: {
                 min: 1,
                 max: 6,
@@ -66,12 +80,22 @@ export default {
     watch: {
         speed() {
             store.set(EFFECT_SPEED, this.speed * this.second);
+        },
+        apply() {
+            services.setPictureEffects({
+                effect: this.selectedEffect,
+                speed: this.speed
+            })
         }
     },
     mounted() {
         this.speedConfig.start = store.get(EFFECT_SPEED) / this.second;
         $('.ui.dropdown').dropdown();
         $('.ui.range').range(this.speedConfig);
+
+        services.getEffectsList().then(effects => {
+            this.effectsList = effects;
+        })
     }
 }
 </script>

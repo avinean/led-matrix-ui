@@ -1,6 +1,6 @@
 import { store, IMG_UPLOADED } from './store';
 
-const BASE_URI = location.host ===  "localhost:3001" ? 'http://localhost:2832' : '';
+const BASE_URI = location.host.includes("localhost") ? 'http://localhost:2832' : '';
 
 class Services {
 
@@ -72,6 +72,19 @@ class Services {
   control(action) {
     if (!action) return;
     return fetch(BASE_URI + '/' + action, { method: 'POST',});
+  }
+
+  sendUpdate(body) {
+    if (!body) return;
+    return fetch(BASE_URI + '/send-update', { method: 'POST', body, });
+  }
+
+  getEffectsList() {
+    return fetch(BASE_URI + '/picture-effects').then(res => res.json());;
+  }
+
+  setPictureEffects(body) {
+    return fetch(BASE_URI + '/picture-effects', { method: 'POST', body: JSON.stringify(body),});
   }
 
 }

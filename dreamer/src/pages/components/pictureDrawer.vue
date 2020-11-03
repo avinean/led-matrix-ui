@@ -232,7 +232,7 @@ export default {
             this.initMatrix();
             this.initPicker();
             this.calculateCharSize();
-            this.initRefreshing();
+            this.refresh();
         });
     },
     unmounted() {
