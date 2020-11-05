@@ -23,9 +23,12 @@
 
 <script>
 import services from '/@utils/services';
+import canvasMixins from '/@mixins/canvasMixins';
 
 export default {
     name: 'app-animation-upload',
+    inject: ['store'],
+    mixins: [canvasMixins],
     data() {
         return {
             image: null,
@@ -34,32 +37,13 @@ export default {
             framesList: [],
             OUT_WIDTH: 0,
             OUT_HEIGTH: 0,
-            matrixParams: {
-                height: 0,
-                width: 0,
-            },
             timer: null,
         };
     },
     computed: {
-        OUT_SRC() {        
-            const widthList = Array(this.OUT_WIDTH).fill().map((i, j) => j);
-            const heightList = Array(this.OUT_HEIGTH).fill().map((i, j) => j);
-
-            const byteArray = new Uint8Array(this.OUT_HEIGTH * this.OUT_WIDTH * 3);
-
-            heightList.forEach(y => {
-                widthList.forEach(x => {
-                    let index = (y * widthList.length + x) * 3;
-                    const {r, g, b} = this.getPixel(this.imgData, x, y);
-                    byteArray[index++] = r;
-                    byteArray[index++] = g;
-                    byteArray[index++] = b;
-                });
-            });
-
-            return byteArray;
-        },
+        matrixParams() {
+            return this.store.state.matrixParams;
+        }
     },
     methods: {
         handleFileSelect(event){
@@ -134,21 +118,6 @@ export default {
 
             this.framesList.push(new Blob([this.OUT_SRC], {type: "octet/stream"}));
         },
-        getPixel(imageData, x, y) {
-            const index = (x + y * imageData.width) * 4;
-            return {
-                r: imageData.data[index+0], 
-                g: imageData.data[index+1], 
-                b: imageData.data[index+2], 
-                a: imageData.data[index+3],
-            };
-        },
-        getMatrixParameters() {
-            return services.getMatrixParameters()
-                .then(params => {
-                    this.matrixParams = params;
-                });
-        },
         initAnimation() {
             if (!this.framesList.length) return;
             this.sendImgData(0)
@@ -163,12 +132,16 @@ export default {
         }
     },
     mounted() {
-        this.getMatrixParameters().then(() => {
-            this.image = this.$refs.imgRoot;
-        });
+        this.image = this.$refs.imgRoot;
     },
     unmounted() {
         clearTimeout(this.timer);
     }
 }
 </script>
+
+<style>
+.jsgif {
+    display: none;
+}
+</style>

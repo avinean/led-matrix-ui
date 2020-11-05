@@ -37,7 +37,11 @@ class Services {
   }
 
   getMatrixParameters() {
-    return fetch(BASE_URI + '/matrix-parameters').then(res => res.json());
+    return fetch(BASE_URI + '/matrix-parameters')
+      .then(res => res.json())
+      .then(params => {
+         globalStore.setMatrixParams(params);
+      });
   }
 
   drawSinglePixel(params) {

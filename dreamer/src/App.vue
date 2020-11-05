@@ -5,6 +5,7 @@
 <script>
 import AppHome from '/@pages/home.vue';
 import store from '/@store/index';
+import services from '/@utils/services';
 
 export default {
     name: 'App',
@@ -14,6 +15,9 @@ export default {
     components: {
         AppHome,
     },
+    mounted() {
+        services.getMatrixParameters();
+    }
 }
 </script>
 

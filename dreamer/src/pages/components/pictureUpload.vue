@@ -49,11 +49,12 @@ export default {
             imgData: null,
             OUT_WIDTH: 0,
             OUT_HEIGTH: 0,
-            matrixParams: {
-                height: 0,
-                width: 0,
-            },
         };
+    },
+    computed: {
+        matrixParams() {
+            return this.store.state.matrixParams;
+        }
     },
     watch: {
        'store.state.imageList'(images) {
@@ -126,21 +127,12 @@ export default {
             const body = new Blob([this.OUT_SRC], {type: "octet/stream"});
             return services.sendImgData(body);
         },
-        getMatrixParameters () {
-            return services.getMatrixParameters()
-                .then(params => {
-                    this.matrixParams = params;
-                });
-        },
         async drawRecursively([img, ...rest]) {
             if (!img) return;
             this.image = img;
             await this.drawImage();
             await this.drawRecursively(rest);
         },
-    },
-    mounted() {
-        this.getMatrixParameters();
     },
 }
 </script>

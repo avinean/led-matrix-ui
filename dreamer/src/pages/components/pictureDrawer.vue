@@ -74,10 +74,6 @@ export default {
         return {
             currentColor: 'rgb(0, 0, 0, 0)',
             srcColor: [0, 0, 0, 0],
-            matrixParams: {
-                height: 0,
-                width: 0,
-            },
             matrix: [
                 [
                     {
@@ -94,6 +90,11 @@ export default {
             timer: null,
             timeDelay: 5000,
         };
+    },
+    computed: {
+        matrixParams() {
+            return this.store.state.matrixParams;
+        }
     },
     watch: {
         matrixParams: {

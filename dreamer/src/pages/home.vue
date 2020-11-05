@@ -62,11 +62,11 @@
             </div>
         </div>
 
-        <div v-show="store.state.loading" class="ui segment global-loader">
-            <div class="ui active dimmer inverted">
-                <div class="ui medium text loader">Loading</div>
-            </div>
-        </div>
+<!--        <div v-show="store.state.loading" class="ui segment global-loader">-->
+<!--            <div class="ui active dimmer inverted">-->
+<!--                <div class="ui medium text loader">Loading</div>-->
+<!--            </div>-->
+<!--        </div>-->
     </div>
 
 </template>
