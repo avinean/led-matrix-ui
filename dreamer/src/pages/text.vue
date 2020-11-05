@@ -114,7 +114,7 @@
 </template>
 
 <script>
-import services from '../utils/services';
+import services from '/@utils/services';
 import Picker from 'vanilla-picker';
 
 export default {

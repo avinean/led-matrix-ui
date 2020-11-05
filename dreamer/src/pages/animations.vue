@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import AppAnimationUpload from './components/animationUpload.vue'
-import AppPictureDrawer from './components/pictureDrawer.vue'
+import AppAnimationUpload from '/@components/animationUpload.vue'
+import AppPictureDrawer from '/@components/pictureDrawer.vue'
 
 export default {
     name: 'app-animations',

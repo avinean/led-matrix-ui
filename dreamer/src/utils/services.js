@@ -1,4 +1,4 @@
-import { store, IMG_UPLOADED } from './store';
+import globalStore from '/@store/index';
 
 const BASE_URI = location.host.includes("localhost") ? 'http://localhost:2832' : '';
 
@@ -14,7 +14,8 @@ class Services {
     })
   }
 
-  sendImgData(body) {    
+  sendImgData(body) {
+    globalStore.setLoading(1)
     return fetch(BASE_URI + '/draw', {  
       method: 'POST',  
       headers: {  
@@ -22,19 +23,9 @@ class Services {
       },  
       body,
     }).then(() => {
-      store.emit(IMG_UPLOADED);
-    });
-  }
-
-  sendMultiImgData(body) {
-    return fetch(BASE_URI + '/draw-multiple', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/octet-stream',
-      },
-      body,
-    }).then(() => {
-      store.emit(IMG_UPLOADED);
+      globalStore.setImageLoaded(body);
+    }).finally(() => {
+      globalStore.setLoading(0)
     });
   }
 
@@ -57,7 +48,16 @@ class Services {
   }
 
   getImagesFromGallery() {
-    return fetch('https://dreamer-led.000webhostapp.com').then(res => res.json());
+    globalStore.setLoading(true);
+    return fetch('https://dreamer-led.000webhostapp.com')
+        .then(res => res.json())
+        .then((response) => {
+          if (response.imageList.length) {
+            globalStore.setGalleryLinks(response.imageList);
+          }
+        }).finally(() => {
+          globalStore.setLoading();
+        });
   }
 
   setRunningText(params) {

@@ -87,7 +87,7 @@
 </template>
 
 <script>
-import services from '../utils/services';
+import services from '/@utils/services';
 
 export default {
     name: 'app-games',

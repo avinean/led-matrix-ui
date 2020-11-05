@@ -48,8 +48,7 @@
 </template>
 
 <script>
-import { EFFECT_SPEED, store } from "../utils/store";
-import services from "../utils/services";
+import services from "/@utils/services";
 
 export default {
     name: 'app-effects',
@@ -78,9 +77,6 @@ export default {
         };
     },
     watch: {
-        speed() {
-            store.set(EFFECT_SPEED, this.speed * this.second);
-        },
         apply() {
             services.setPictureEffects({
                 effect: this.selectedEffect,
@@ -89,7 +85,6 @@ export default {
         }
     },
     mounted() {
-        this.speedConfig.start = store.get(EFFECT_SPEED) / this.second;
         $('.ui.dropdown').dropdown();
         $('.ui.range').range(this.speedConfig);
 

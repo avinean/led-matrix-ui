@@ -7,9 +7,9 @@
 </template>
 
 <script>
-import AppPictureDrawer from './components/pictureDrawer.vue';
-import AppPictureUpload from './components/pictureUpload.vue';
-import AppPictureGallery from './components/pictureGallery.vue';
+import AppPictureDrawer from '/@components/pictureDrawer.vue';
+import AppPictureUpload from '/@components/pictureUpload.vue';
+import AppPictureGallery from '/@components/pictureGallery.vue';
 
 export default {
     name: 'app-picture',

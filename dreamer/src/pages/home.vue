@@ -1,77 +1,87 @@
 <template>
-    <div class="ui container main">
-        <div
-            v-if="currentTab === 'Picture'"
-            class="ui segment"
-        >
-            <app-picture></app-picture>
-        </div>
-        <div
-            v-if="currentTab === 'Text/Clock'"
-            class="ui segment"
-        >
-            <app-text></app-text>
-        </div>
-        <div
-            v-if="currentTab === 'Effects for picture'"
-            class="ui segment"
-        >
-            <app-effects></app-effects>
-        </div>
-        <div
-            v-if="currentTab === 'Animations'"
-            class="ui segment"
-        >
-            <app-animations></app-animations>
-        </div>
-        <div
-            v-if="currentTab === 'Games'"
-            class="ui segment"
-        >
-            <app-games></app-games>
-        </div>
-        <div
-            v-if="currentTab === 'Settings'"
-            class="ui segment"
-        >
-            <app-settings></app-settings>
-        </div>
-        
-        <div
-            class="main__menu"
-            :class="isMenuOpened ? 'main__menu--opened' : ''"
-            @click="isMenuOpened = !isMenuOpened"
-        >
-            <button
-                v-for="(tab, i) in tabs"
-                class="ui circular icon button massive main__menu-item"
-                :class="[
+    <div>
+        <div class="ui container main">
+            <div
+                v-if="currentTab === 'Picture'"
+                class="ui segment"
+            >
+                <app-picture></app-picture>
+            </div>
+            <div
+                v-if="currentTab === 'Text/Clock'"
+                class="ui segment"
+            >
+                <app-text></app-text>
+            </div>
+            <div
+                v-if="currentTab === 'Effects for picture'"
+                class="ui segment"
+            >
+                <app-effects></app-effects>
+            </div>
+            <div
+                v-if="currentTab === 'Animations'"
+                class="ui segment"
+            >
+                <app-animations></app-animations>
+            </div>
+            <div
+                v-if="currentTab === 'Games'"
+                class="ui segment"
+            >
+                <app-games></app-games>
+            </div>
+            <div
+                v-if="currentTab === 'Settings'"
+                class="ui segment"
+            >
+                <app-settings></app-settings>
+            </div>
+
+            <div
+                class="main__menu"
+                :class="isMenuOpened ? 'main__menu--opened' : ''"
+                @click="isMenuOpened = !isMenuOpened"
+            >
+                <button
+                    v-for="(tab, i) in tabs"
+                    class="ui circular icon button massive main__menu-item"
+                    :class="[
                     tab.key === currentTab ? 'main__menu-item--active' : '',
                     colors[i]
                 ].join(' ')"
-                :key="tab.key"
-                @click="goTo(tab.key)"
-            >
-                <i
-                    class="icon"
-                    :class="tab.icon"
-                ></i>
-                <span>{{ tab.label }}</span>
-            </button>
+                    :key="tab.key"
+                    @click="goTo(tab.key)"
+                >
+                    <i
+                        class="icon"
+                        :class="tab.icon"
+                    ></i>
+                    <span>{{ tab.label }}</span>
+                </button>
+            </div>
+        </div>
+
+        <div v-show="store.state.loading" class="ui segment global-loader">
+            <div class="ui active dimmer inverted">
+                <div class="ui medium text loader">Loading</div>
+            </div>
         </div>
     </div>
+
 </template>
 
 <script>
-import AppGames from './games.vue';
-import AppAnimations from './animations.vue';
-import AppEffects from './effects.vue';
-import AppText from './text.vue';
-import AppPicture from './picture.vue';
-import AppSettings from './settings.vue';
+import AppGames from '/@pages/games.vue';
+import AppAnimations from '/@pages/animations.vue';
+import AppEffects from '/@pages/effects.vue';
+import AppText from '/@pages/text.vue';
+import AppPicture from '/@pages/picture.vue';
+import AppSettings from '/@pages/settings.vue';
 
 export default {
     name: 'app-home',
+    inject: ['store'],
     components: {
         AppGames,
         AppAnimations,
@@ -191,5 +201,14 @@ export default {
 .main__menu--opened .main__menu-item span {
     right: 100px;
     opacity: 1;
+}
+
+.global-loader {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: 0;
 }
 </style>

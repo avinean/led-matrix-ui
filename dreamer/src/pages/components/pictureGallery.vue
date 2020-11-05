@@ -6,7 +6,7 @@
         </h4>
         <div class="ui card" style="width: auto;">
             <div class="content">
-                <div v-if="images.length" class="ui checkbox mb-10">
+                <div v-if="store.state.gallery.links.length" class="ui checkbox mb-10">
                     <input
                         v-model="isMultiSelect"
                         type="checkbox"
@@ -17,11 +17,11 @@
                     <label for="isMultiSelect">Multiple mode</label>
                 </div>
                 <div
-                    v-if="images.length"
+                    v-if="store.state.gallery.links.length"
                     class="ui small images mb-10"
                 >
                     <span
-                        v-for="(image, i) in images"
+                        v-for="(image, i) in store.state.gallery.links"
                         :key="image"
                         class="images__item"
                         :class="selectedImages.includes($refs['image' + i]) ? 'images__item--active' : ''"
@@ -40,7 +40,7 @@
                     <button
                         class="ui left labeled icon button primary mb-10"
                         :class="{
-                            loading: loading
+                            loading: store.state.loading
                         }"
                         @click="loadGallery"
                     >
@@ -64,16 +64,15 @@
 </template>
 
 <script>
-import services from '../../utils/services';
-import {store, IMG_CHOSEN_FROM_GALLERY, IMGS_CHOSEN_FROM_GALLERY} from '../../utils/store';
+import services from '/@utils/services';
+import store from '/@store/index';
 
 export default {
     name: 'app-picture-gallery',
+    inject: ['store'],
     data() {
         return {
-            images: [],
             selectedImages: [],
-            loading: false,
             isMultiSelect: false
         }
     },
@@ -85,37 +84,23 @@ export default {
         }
     },
     methods: {
-        loadGallery() {
-            this.loading = true;
-
-            services.getImagesFromGallery().then((response) => {
-              if (response.imageList.length) {
-                this.images = response.imageList;
-              }
-            }).finally(() => {
-              this.loading = false;
-            });
+        async loadGallery() {
+            await services.getImagesFromGallery();
         },
         drawImage(image) {
-            store.emit(IMG_CHOSEN_FROM_GALLERY, image);
+            this.store.setImageList([ image ]);
         },
         drawImages() {
-            store.emit(IMGS_CHOSEN_FROM_GALLERY, [...this.selectedImages]);
+            this.store.setImageList([...this.selectedImages]);
         },
         collectImages(image) {
-            const index = this.selectedImages.indexOf(image);
-            if (!~index) {
-                this.selectedImages.push(image);
-            } else {
-                this.selectedImages.splice(index, 1);
-            }
+            const index =   this.selectedImages.indexOf(image);
+            if (!~index)    this.selectedImages.push(image);
+            else            this.selectedImages.splice(index, 1);
         },
         selectImage({ target }) {
-            if (this.isMultiSelect) {
-                this.collectImages(target);
-            } else {
-                this.drawImage(target);
-            }
+            if (this.isMultiSelect) this.collectImages(target);
+            else                    this.drawImage(target);
         },
     }
 }

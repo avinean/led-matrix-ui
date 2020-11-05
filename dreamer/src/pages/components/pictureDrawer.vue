@@ -61,12 +61,12 @@
 </template>
 
 <script>
-import services from '../../utils/services';
-import { store, IMG_UPLOADED } from '../../utils/store';
+import services from '/@utils/services';
 import Picker from 'vanilla-picker';
 
 export default {
     name: 'app-picture-drawer',
+    inject: ['store'],
     props: {
         disabled: Boolean,
     },
@@ -93,7 +93,6 @@ export default {
             isFillMode: false,
             timer: null,
             timeDelay: 5000,
-            bindedRefresh: null,
         };
     },
     watch: {
@@ -103,6 +102,9 @@ export default {
                 this.calculateCharSize();
             },
         },
+        'store.state.isImageLoaded'(is) {
+            this.refresh();
+        }
     },
     methods: {
         calculateCharSize() {
@@ -224,10 +226,6 @@ export default {
         }
     },
     mounted() {
-        this.bindedRefresh = this.refresh.bind(this);
-        
-        store.on(IMG_UPLOADED, this.bindedRefresh);
-
         this.getMatrixParameters().then(() => {
             this.initMatrix();
             this.initPicker();
@@ -236,8 +234,6 @@ export default {
         });
     },
     unmounted() {
-        store.remove(IMG_UPLOADED, this.bindedRefresh);
-
         setTimeout(() => {
             clearTimeout(this.timer);
         }, this.timeDelay + 1000);
