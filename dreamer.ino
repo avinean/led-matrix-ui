@@ -2,6 +2,8 @@
 // By Marc MERLIN <marc_soft@merlins.org>
 // Contains code (c) Adafruit, license BSD
 
+#define INCLUDE_vTaskDelete 1
+
 #include "defs.h"
 #include "helpers.h"
 
@@ -11,9 +13,9 @@
 #include "OTAHelper.h"
 
 // JPEG decoder library
-#include <JPEGDecoder.h>
+//#include <JPEGDecoder.h>
 
-#include "JPEG_functions.h"
+//#include "JPEG_functions.h"
 #include "SPIFFS_functions.h"
 
 #include "GifPlayer.h"
@@ -22,6 +24,7 @@ GifPlayer gifPlayer;
 
 
 TaskHandle_t Task1;
+TaskHandle_t startupTask;
 
 // LED pins
 const int LED_BUILTIN = 2;
@@ -78,6 +81,8 @@ void playGif(const char * dir, const char * fileName){
 
 }
 
+SemaphoreHandle_t syncSemaphore;
+
 uint8_t gifIdx = 0;
 const uint8_t gifsCnt = 4;
 const String gifsPath[gifsCnt] = { "/gifs/32anim_balls.gif", "/gifs/32anim_flower.gif", "/gifs/32anim_photon.gif" };
@@ -89,7 +94,10 @@ void loop() {
 //  gifIdx = ( ( gifIdx + 1 ) >= gifsCnt ? 0 : gifIdx + 1 );
 //  playGif(gifsPath[gifIdx]);
 //  doLoop();
+//display_scrollText();
+//display_scrollText("T E S T", CRGB::Yellow, CRGB::Cyan);
 }
+
 
 
 //Task1code: blinks an LED every 1000 ms
@@ -97,12 +105,20 @@ void Task1code( void * pvParameters ){
   for(;;){
 //    Serial.print("Task1 running on core ");
 //    Serial.println(xPortGetCoreID());
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(1000);
+    digitalWrite(LED_BUILTIN, HIGH);    
+//    delay(1000);
+    vTaskDelay( pdMS_TO_TICKS( 1000 ) );
     digitalWrite(LED_BUILTIN, LOW);
-    delay(1000);
+//    delay(1000);
+    vTaskDelay( pdMS_TO_TICKS( 1000 ) );
   } 
 }
+
+//Task1code: blinks an LED every 1000 ms
+void startupTaskCode( void * pvParameters ){
+  findFilesInDir(SPIFFS, "/", ".gif", 3, doOnFileFoundCallbackWrapper);     
+}
+
 
 
 void doOnFileFoundCallbackWrapper(const char * dir, const char * file){
@@ -129,7 +145,21 @@ matrix->clear();
 //  matrix->fillScreen(LED_BLUE_LOW);
   matrix->show();
 
-findFilesInDir(SPIFFS, "/", ".gif", 3, doOnFileFoundCallbackWrapper);
+//create a task that will be executed in the Task1code() function, with priority 1 and executed on core 0
+  xTaskCreatePinnedToCore(
+                    startupTaskCode,   /* Task function. */
+                    "startup",     /* name of task. */
+                    10000,       /* Stack size of task */
+                    NULL,        /* parameter of the task */
+                    2,           /* priority of the task */
+                    &startupTask,      /* Task handle to keep track of created task */
+                    1);          /* pin task to core 0 */                  
+
+//syncSemaphore = xSemaphoreCreateBinary();
+//if( xSemaphoreTake( syncSemaphore, ( TickType_t ) 0 ) )
+//{
+//  findFilesInDir(SPIFFS, "/", ".gif", 3, doOnFileFoundCallbackWrapper);
+//}
 
 //findFilesInDir(SPIFFS, "/", ".gif", 3, doOnFileFoundCallbackWrapper);
 //if ( !gifs.IsEmpty() ){
@@ -137,7 +167,7 @@ findFilesInDir(SPIFFS, "/", ".gif", 3, doOnFileFoundCallbackWrapper);
 //    playGif(gifs[i]);  
 //  }
 //}
-for(;;);
+//for(;;);
 
 
   
@@ -165,11 +195,30 @@ for(;;);
                     "Task1",     /* name of task. */
                     10000,       /* Stack size of task */
                     NULL,        /* parameter of the task */
-                    1,           /* priority of the task */
+                    2,           /* priority of the task */
                     &Task1,      /* Task handle to keep track of created task */
                     1);          /* pin task to core 0 */                  
   delay(500);
   Serial.println("\r\nInitialisation done.");
+
+  // Use the handle to delete the task.
+ if( startupTask != NULL ){
+   vTaskDelete( startupTask );
+ }
+
+ matrix->clear();
+//  matrix->fillScreen(LED_BLUE_LOW);
+  matrix->show();
+
+//  xTaskCreatePinnedToCore(
+//  scrollTextTaskCode,   /* Task function. */
+//  "scrollText",     /* name of task. */
+//  10000,       /* Stack size of task */
+//  NULL,        /* parameter of the task */
+//  1,           /* priority of the task */
+//  &currentGfxTask,      /* Task handle to keep track of created task */
+//  1);          /* pin task to core 0 */                  
+//startRunningTextTask();
 }
 
 // vim:sts=4:sw=4

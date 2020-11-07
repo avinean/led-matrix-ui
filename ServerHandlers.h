@@ -128,23 +128,19 @@ void setupServer(AsyncWebServer* server){
     Serial.printf("/games");
     DynamicJsonDocument root(128);
     err = deserializeJson(root, (const char*)data);
-      if (err == DeserializationError::Ok) {
-        // Get a reference to the root object
-        JsonObject obj = root.as<JsonObject>();  
-        _GAME_NAME_ = obj["game"].as<String>();
-        Serial.printf("%s\n\n", _GAME_NAME_.c_str());
-        disableGameMode();
-        disableCanvasMode();
-        disableTextMode();        
-        __CURRENT_MODE = __MODE_GAME;
-        enableGameMode();        
-        request->send(200, "text/plain", "ack");
-      } else
-        request->send(404, "text/plain", ":(");
-  });
-
-  server->on("/get_pixel", HTTP_GET, [](AsyncWebServerRequest *request){
-    Serial.printf("/matrix-state[%u]", NUM_LEDS);
+    if (err == DeserializationError::Ok) {
+      // Get a reference to the root object
+      JsonObject obj = root.as<JsonObject>();  
+      _GAME_NAME_ = obj["game"].as<String>();
+      Serial.printf("%s\n\n", _GAME_NAME_.c_str());
+      disableGameMode();
+      disableCanvasMode();
+      disableTextMode();        
+      __CURRENT_MODE = __MODE_GAME;
+      enableGameMode();        
+      request->send(200, "text/plain", "ack");
+    } else
+      request->send(404, "text/plain", ":(");
   });
 
   server->on("/fill-matrix", HTTP_POST, [](AsyncWebServerRequest *request){
@@ -160,10 +156,11 @@ void setupServer(AsyncWebServer* server){
         unsigned char g = obj["g"];
         unsigned char b = obj["b"];  
         Serial.printf("r: %u g: %u b: %u\n\n", r, g, b);        
-  matrix->clear();
-//        fill_solid(leds, NUM_LEDS, CRGB( r, g, b ));
-  matrix->fillScreen(CRGB( r, g, b ));
-  matrix->show();
+        
+        matrix->clear();
+        matrix->fillScreen(CRGB( r, g, b ));
+        matrix->show();
+        
         request->send(200, "text/plain", "ack");
       } else
         request->send(404, "text/plain", ":(");
@@ -173,10 +170,9 @@ void setupServer(AsyncWebServer* server){
     AsyncWebServerResponse *response = request->beginChunkedResponse("application/octet-stream", 
       [](uint8_t *buffer, size_t maxLen, size_t index) -> size_t {
           Serial.printf("\n/matrix-state[%u]:%3d, %3d\n", NUM_LEDS, index, maxLen);
-          if( /*__CURRENT_MODE == __MODE_GAME ||*/ index){ //already sent
+          if( index){ //already sent
               return 0;
-          }          
-//          getCanvasPixels(resp);
+          }
           int res = (maxLen > BITMAP_SIZE) ? BITMAP_SIZE : maxLen;
           memmove( buffer, &leds, res );
           return res;
@@ -201,7 +197,7 @@ void setupServer(AsyncWebServer* server){
   server->on("/running-text", HTTP_POST, [](AsyncWebServerRequest *request){
     }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
       Serial.printf("/running-text:\n");
-      DynamicJsonDocument root(255);
+      DynamicJsonDocument root(512);
       err = deserializeJson(root, (const char*)data);
       if (err == DeserializationError::Ok) {
         // Get a reference to the root object
@@ -226,6 +222,10 @@ void setupServer(AsyncWebServer* server){
         __RUNNING_STRING_BACKGROUND_COLOR = CRGB( br, bg, bb );
         enableTextMode();
         Serial.printf("str = %s, spd = %u, r: %u g: %u b: %u, br: %u bg: %u bb: %u\n\n", _RUN_TEXT_.c_str(), _RUN_TEXT_SPEED_, r, g, b, br, bg, bb); 
+//        display_scrollText(_RUN_TEXT_.c_str(), __RUNNING_STRING_COLOR, __RUNNING_STRING_BACKGROUND_COLOR);
+
+startRunningTextTask();
+ 
         request->send(200, "text/plain", "ack");
       } else
         request->send(404, "text/plain", ":(");
@@ -235,35 +235,15 @@ server->on("/draw", HTTP_POST, [](AsyncWebServerRequest *request){
     //nothing and dont remove it
   }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
     Serial.printf("/draw: len=%u, idx=%u, ttl=%u\n", len, index, total);
-    
-//!!!
+
     matrix->clear();
     memmove( &leds, data, BITMAP_SIZE );
     matrix->show();
 
-    
-//    int idx = 0;
-//    for ( int y = 0; y < MX_HEIGHT; y++ ){
-//      for ( int x = 0; x < MX_WIDTH; x++ ){
-//        idx = (x + y * MX_WIDTH) * 3;
-//          if ( ( data[idx] >= BG_COLOR_THRESH_MAX  ) && ( data[idx+1]  >= BG_COLOR_THRESH_MAX  ) && ( data[idx+2]  >= BG_COLOR_THRESH_MAX ) ){
-//            bitmap[idx] = 0x00;
-//            bitmap[idx+1] = 0x00;
-//            bitmap[idx+2] = 0x00;            
-//          } else {
-//            bitmap[idx] = data[idx];
-//            bitmap[idx+1] = data[idx+1];
-//            bitmap[idx+2] = data[idx+2];            
-//          }
-//          Serial.printf("%3u,%3u,%3u  ", data[idx], data[idx + 1], data[idx + 2]);
-//      }
-//      Serial.println();
-//    }
     disableGameMode();
     disableCanvasMode();
     disableTextMode();        
     __CURRENT_MODE = __MODE_CANVAS;    
-//    fillCanvas(data);
     request->send(200, "text/plain", "ack");
   });
 
@@ -286,11 +266,7 @@ server->on("/pixel", HTTP_POST, [](AsyncWebServerRequest *request){
       disableCanvasMode();
       disableTextMode();        
       __CURRENT_MODE = __MODE_CANVAS;
-//      enableCanvasMode();
-//      int idx = (x + y * MX_WIDTH) * DEPTH;
-//      bitmap[idx] = r;
-//      bitmap[idx+1] = g;
-//      bitmap[idx+2] = b;
+
       matrix->drawPixel(x, y, CRGB( r, g, b ));
       matrix->show();
       request->send(200, "text/plain", "ack");

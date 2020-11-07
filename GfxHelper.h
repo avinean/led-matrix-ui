@@ -196,45 +196,88 @@ void display_resolution() {
     matrix->show();
 }
 
-void display_scrollText() {
-    uint8_t size = max(int(MX_WIDTH/8), 1);
-    matrix->clear();
-    matrix->setTextWrap(false);  // we don't wrap text so it scrolls nicely
-    matrix->setTextSize(1);
-    matrix->setRotation(0);
-    for (int8_t x=7; x>=-42; x--) {
-  yield();
-  matrix->clear();
-  matrix->setCursor(x,0);
-  matrix->setTextColor(LED_GREEN_HIGH);
-  matrix->print("Hello");
-  if (MX_HEIGHT>11) {
-      matrix->setCursor(-20-x,MX_HEIGHT-7);
-      matrix->setTextColor(LED_ORANGE_HIGH);
-      matrix->print("World");
-  }
-  matrix->show();
-       delay(50);
-    }
 
-    matrix->setRotation(3);
-    matrix->setTextSize(size);
-    matrix->setTextColor(LED_BLUE_HIGH);
-    for (int16_t x=8*size; x>=-6*8*size; x--) {
-  yield();
+
+void display_scrollText(const char txt[], CRGB tcolor, CRGB bgcolor) {
+  uint8_t size = max(int(MX_WIDTH/8), 1);
   matrix->clear();
-  matrix->setCursor(x,MX_WIDTH/2-size*4);
-  matrix->print("Rotate");
-  matrix->show();
-  // note that on a big array the refresh rate from show() will be slow enough that
-  // the delay become irrelevant. This is already true on a 32x32 array.
-        delay(50/size);
-    }
-    matrix->setRotation(0);
-    matrix->setCursor(0,0);
+  matrix->setTextWrap(false);  // we don't wrap text so it scrolls nicely
+//  matrix->setTextSize(1);
+  matrix->setRotation(0);
+//  for (int8_t x=7; x>=-42; x--) {
+//    yield();
+//    matrix->clear();
+//    matrix->setCursor(x,0);
+//    matrix->setTextColor(LED_GREEN_HIGH);
+//    matrix->print("Hello");
+//    if (MX_HEIGHT>11) {
+//      matrix->setCursor(-20-x,MX_HEIGHT-7);
+//      matrix->setTextColor(LED_ORANGE_HIGH);
+//      matrix->print("World");
+//    }
+//    matrix->show();
+//    delay(50);
+//  }
+
+//  matrix->setRotation(3);
+  matrix->setTextSize(size);
+//  matrix->setTextColor(rgb888toRgb565(tcolor));
+//  FastLED.setTextColor(tcolor);
+uint16_t c16b = matrix->Color(tcolor.r, tcolor.g, tcolor.b);
+uint16_t c16bbg = matrix->Color(bgcolor.r, bgcolor.g, bgcolor.b);
+Serial.printf("CGRB color: %2X:%2X:%2X\n", tcolor.r, tcolor.g, tcolor.b);
+Serial.printf("rgb565 color: %4X\n", c16b);
+Serial.printf("CGRB BG color: %2X:%2X:%2X\n", bgcolor.r, bgcolor.g, bgcolor.b);
+Serial.printf("rgb565 BG color: %4X\n\n", c16bbg);
+matrix->setTextColor(c16b, c16bbg);
+  for (int16_t x=8*size; x>=-6*8*size-MX_WIDTH*2; x--) {
+    yield();
+    matrix->clear();
+    matrix->setCursor(x,MX_WIDTH/2-size*4);
+    matrix->print(txt);
     matrix->show();
+    // note that on a big array the refresh rate from show() will be slow enough that
+    // the delay become irrelevant. This is already true on a 32x32 array.
+//    delay(50/size);
+    vTaskDelay( pdMS_TO_TICKS( 50/size ) );
+  }
+  matrix->setRotation(0);
+  matrix->setCursor(0,0);
+  matrix->show();
 }
 
+void scrollTextTaskCode( void * pvParameters ){
+  for(;;){
+    display_scrollText(_RUN_TEXT_.c_str(), __RUNNING_STRING_COLOR, __RUNNING_STRING_BACKGROUND_COLOR);
+  }
+}
+
+void startRunningTextTask(){
+  TaskHandle_t xTask = currentGfxTask;
+
+  vTaskSuspendAll();  
+  if( currentGfxTask != NULL ){
+      /* The task is going to be deleted.
+      Set the handle to NULL. */
+      currentGfxTask = NULL;
+  
+      /* Delete using the copy of the handle. */
+      vTaskDelete( xTask );
+  }  
+//  if( currentGfxTask != NULL ){
+//     vTaskDelete( currentGfxTask );
+//     currentGfxTask = NULL;
+//   }
+  xTaskCreatePinnedToCore(
+    scrollTextTaskCode,   /* Task function. */
+    "scrollText",     /* name of task. */
+    10000,       /* Stack size of task */
+    NULL,        /* parameter of the task */
+    2,           /* priority of the task */
+    &currentGfxTask,      /* Task handle to keep track of created task */
+    1);          /* pin task to core 0 */                  
+    xTaskResumeAll();
+}
 
 uint8_t bitmapIdx = 0;
 
@@ -339,73 +382,69 @@ void doLoop(){
     }
 #endif
 
-//    Serial.println("Count pixels");
-//    count_pixels();
-//    Serial.println("Count pixels done");
-//    delay(1000);
-//
-//    display_four_white();
-//    delay(3000);
-//
-//    Serial.print("Screen pixmap capacity: ");
-//    Serial.println(pixmap_count);
-//
-//    // multicolor bitmap sent as many times as we can display an 8x8 pixmap
-//    for (uint8_t i=0; i<=pixmap_count; i++)
-//    {
-//  display_rgbBitmap(0);
-//    }
-//    delay(1000);
-//
-//    Serial.println("Display Resolution");
-//    display_resolution();
-//    delay(3000);
-//
-//    Serial.println("Display bitmaps");
-//    // Cycle through red, green, blue, display 2 checkered patterns
-//    // useful to debug some screen types and alignment.
-//    uint16_t bmpcolor[] = { LED_GREEN_HIGH, LED_BLUE_HIGH, LED_RED_HIGH };
-//    for (uint8_t i=0; i<3; i++)
-//    {
-//  display_bitmap(0, bmpcolor[i]);
-//  delay(500);
-//  display_bitmap(1, bmpcolor[i]);
-//  delay(500);
-//    }
-//
-//    Serial.println("Display smileys");
-//    // Display 3 smiley faces.
-//    for (uint8_t i=2; i<=4; i++)
-//    {
-//  display_bitmap(i, bmpcolor[i-2]);
-//  // If more than one pixmap displayed per screen, display more quickly.
-//  delay(MX_WIDTH>8?500:1500);
-//    }
-//    // If we have multiple pixmaps displayed at once, wait a bit longer on the last.
-//    delay(MX_WIDTH>8?1000:500);
-//
-//    Serial.println("Display lines, boxes and circles");
-//    display_lines();
-//    delay(3000);
-//
-//    display_boxes();
-//    delay(3000);
-//
-//    display_circles();
-//    delay(3000);
-//    matrix->clear();
-//
-//    Serial.println("Display RGB bitmaps");
-//    for (uint8_t i=0; i<=(sizeof(RGB_bmp)/sizeof(RGB_bmp[0])-1); i++)
-//    {
-//  display_rgbBitmap(i);
-//  delay(MX_WIDTH>8?500:1500);
-//    }
-//    // If we have multiple pixmaps displayed at once, wait a bit longer on the last.
-//    delay(MX_WIDTH>8?1000:500);
-//
-//    Serial.println("Scrolltext");
-//    display_scrollText();
+    Serial.println("Count pixels");
+    count_pixels();
+    Serial.println("Count pixels done");
+    delay(1000);
+
+    display_four_white();
+    delay(3000);
+
+    Serial.print("Screen pixmap capacity: ");
+    Serial.println(pixmap_count);
+
+    // multicolor bitmap sent as many times as we can display an 8x8 pixmap
+    for (uint8_t i=0; i<=pixmap_count; i++){
+      display_rgbBitmap(0);
+    }
+    delay(1000);
+
+    Serial.println("Display Resolution");
+    display_resolution();
+    delay(3000);
+
+    Serial.println("Display bitmaps");
+    // Cycle through red, green, blue, display 2 checkered patterns
+    // useful to debug some screen types and alignment.
+    uint16_t bmpcolor[] = { LED_GREEN_HIGH, LED_BLUE_HIGH, LED_RED_HIGH };
+    for (uint8_t i=0; i<3; i++){
+      display_bitmap(0, bmpcolor[i]);
+      delay(500);
+      display_bitmap(1, bmpcolor[i]);
+      delay(500);
+    }
+
+    Serial.println("Display smileys");
+    // Display 3 smiley faces.
+    for (uint8_t i=2; i<=4; i++){
+      display_bitmap(i, bmpcolor[i-2]);
+      // If more than one pixmap displayed per screen, display more quickly.
+      delay(MX_WIDTH>8?500:1500);
+    }
+    // If we have multiple pixmaps displayed at once, wait a bit longer on the last.
+    delay(MX_WIDTH>8?1000:500);
+
+    Serial.println("Display lines, boxes and circles");
+    display_lines();
+    delay(3000);
+
+    display_boxes();
+    delay(3000);
+
+    display_circles();
+    delay(3000);
+    matrix->clear();
+
+    Serial.println("Display RGB bitmaps");
+    for (uint8_t i=0; i<=(sizeof(RGB_bmp)/sizeof(RGB_bmp[0])-1); i++){
+      display_rgbBitmap(i);
+      delay(MX_WIDTH>8?500:1500);
+    }
+    // If we have multiple pixmaps displayed at once, wait a bit longer on the last.
+    delay(MX_WIDTH>8?1000:500);
+
+    Serial.println("Scrolltext");
+    display_scrollText("Scrolltext", CRGB::Red, CRGB::Black);
 
 
 //drawNextBitmap();

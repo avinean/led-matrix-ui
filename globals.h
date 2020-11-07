@@ -3,7 +3,11 @@
 
 #include "defs.h"
 
-#include "ESPAsyncWebServer.h"
+TaskHandle_t currentGfxTask;
+
+const String CONFIG_IDF_TARGET = "esp32";
+
+#include <ESPAsyncWebServer.h>
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -35,7 +39,7 @@ byte _GAME_BUTTONS_ = 4;                  // Управление играми: 
 
 String _RUN_TEXT_ = "hello world";
 int _RUN_TEXT_SPEED_ = 200;
-uint32_t __RUNNING_STRING_COLOR = CRGB::Yellow;
+CRGB __RUNNING_STRING_COLOR = CRGB::Yellow;
 CRGB __RUNNING_STRING_BACKGROUND_COLOR = CRGB::Blue;
 
 #endif
