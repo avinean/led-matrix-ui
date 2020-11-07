@@ -26,13 +26,16 @@
 #ifndef GifPlayer_H
 #define GifPlayer_H
 
-#include "config.h"
+#include "defs.h"
+
+#include "SPIFFS.h"
 
 #define DEBUG 0
 
 //#include "FS.h"
 
 #include "pixeltypes.h"
+
 
 class GifPlayer {
   public:
@@ -861,5 +864,8 @@ the_end:
       return ERROR_NONE;
     }
 };
+
+
+GifPlayer gifPlayer;
 
 #endif

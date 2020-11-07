@@ -49,6 +49,77 @@ void listFiles(void) {
 
 #ifdef ESP32
 
+void dumpFile(const char* fname){
+  File f = SPIFFS.open(fname, "r");
+  if (f && f.size()) {
+      Serial.println("Dumping log file");
+            
+      String debugLogData;
+  
+      while (f.available()){
+        debugLogData += char(f.read());
+      }
+      f.close();
+           
+      Serial.println("=====================================");
+      Serial.println(debugLogData);
+      Serial.println("=====================================");
+  }
+}
+
+void dumpPtr(const uint8_t* fdst, uint16_t fsize){
+    Serial.println("=====================================");    
+    for ( uint16_t i =0; i< fsize; i++ ){
+      Serial.printf("%2X ", fdst[i]);            
+    }
+    Serial.println("=====================================");
+}
+
+void readFromFile(const char* fname, const uint8_t* fdst, uint16_t fsize){
+  File file = SPIFFS.open(fname, "r");
+ 
+  if (!file) {
+    Serial.println("Error opening file for reading");
+    return;
+  }
+ 
+  int bytesReaded = file.read((uint8_t*)fdst, fsize);//print("TEST SPIFFS");
+ 
+  if (bytesReaded > 0) {
+    Serial.println("File was Readed");
+    Serial.println(bytesReaded);
+ 
+  } else {
+    Serial.println("File read failed");
+  }
+ 
+  file.close();
+}
+
+void writeToFile(const char* fname, const uint8_t* fdata, uint16_t fsize){
+  File file = SPIFFS.open(fname, "w");
+ 
+  if (!file) {
+    Serial.println("Error opening file for writing");
+    return;
+  }
+
+int bytesWritten = 0;
+ do{
+  bytesWritten += file.write(fdata, fsize);//print("TEST SPIFFS");
+ } while(fsize > bytesWritten);
+ 
+  if (bytesWritten == fsize ) {
+    Serial.println("File was written");
+    Serial.println(bytesWritten);
+ 
+  } else {
+    Serial.println("File write failed");
+  }
+ 
+  file.close();
+}
+
 void listFiles(void) {
   listDir(SPIFFS, "/", 0);
 }

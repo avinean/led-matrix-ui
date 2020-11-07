@@ -5,6 +5,15 @@
 #include <FastLED_NeoMatrix.h>
 #include <FastLED.h>
 
+// Max is 255, 32 is a conservative value to not overload
+// a USB power supply (500mA) for 12x12 pixels.
+#define BRIGHTNESS 4
+#define MX_COLORS 3
+#define MX_WIDTH 16
+#define MX_HEIGHT 16
+#define NUM_LEDS (MX_WIDTH*MX_HEIGHT)
+#define BITMAP_SIZE ( NUM_LEDS * MX_COLORS )
+
 // Choose your prefered pixmap
 #include "bitmaps/heart24.h"
 #include "bitmaps/yellowsmiley24.h"

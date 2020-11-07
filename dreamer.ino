@@ -18,8 +18,6 @@
 //#include "JPEG_functions.h"
 #include "SPIFFS_functions.h"
 
-#include "GifPlayer.h"
-GifPlayer gifPlayer;
 
 
 
@@ -30,56 +28,6 @@ TaskHandle_t startupTask;
 const int LED_BUILTIN = 2;
 
 
-void playGif(const char * dir, const char * fileName){
-//void playGif(File* file){
-//  File root = SPIFFS.open(dir);
-  File file = SPIFFS.open(String(dir)+String("/") + String(fileName), "r");
-  if ( file && String(file.name()).endsWith(".gif") ){
-    Serial.print("  FILE: ");
-    Serial.print(file.name());
-    Serial.print("\tSIZE: ");
-    Serial.println(file.size());
-  
-//    String fileName = file->name();
-    Serial.println("!!GIF!!");  
-    Serial.print("Reading ");
-//    Serial.println(fileName);
-  
-    File imageFile = SPIFFS.open(fileName, "r");
-    if (!imageFile) {
-        Serial.println("Failed to open");
-        return;
-    }
-    
-    gifPlayer.setFile(imageFile);
-  
-    for (uint8_t c=0; c<10; c++) {
-      if (!gifPlayer.parseGifHeader()) {
-        imageFile.close();
-        Serial.println("No gif header");
-        return;
-      }
-
-      matrix->clear();
-      gifPlayer.parseLogicalScreenDescriptor();
-      gifPlayer.parseGlobalColorTable();
-      Serial.println("Processing gif");
-      int result;
-      do {
-//                  gifPlayer.drawFrame();
-        result = gifPlayer.drawFrame();
-        matrix->show();
-        delay(50);
-      } while (result != ERROR_FINISHED);
-      imageFile.seek(0);
-    }
-
-    Serial.println("Gif finished");
-    imageFile.close();
-    delay(1000);
-  }
-
-}
 
 SemaphoreHandle_t syncSemaphore;
 
@@ -135,6 +83,17 @@ void setup() {
     Serial.println("SPIFFS initialisation failed!");
     while (1) yield(); // Stay here twiddling thumbs waiting
   }
+
+writeToFile("/test.bin",(const uint8_t*)"QWERTY", 6);
+dumpFile("/test.bin");
+
+dumpPtr((const uint8_t*)RGB_bmp, 64);
+writeToFile("/test1.bin",(const uint8_t*)RGB_bmp, 64);
+uint8_t _buf[512];
+readFromFile("/test1.bin",(const uint8_t*)&_buf, 64 );
+dumpPtr((const uint8_t*)&_buf, 64);
+for(;;);
+  
   updateFW();
   initGfx();
 

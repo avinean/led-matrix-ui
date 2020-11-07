@@ -5,20 +5,17 @@
 
 TaskHandle_t currentGfxTask;
 
-const String CONFIG_IDF_TARGET = "esp32";
+
+
+
+
+//const String CONFIG_IDF_TARGET = "esp32";
 
 #include <ESPAsyncWebServer.h>
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
-// Max is 255, 32 is a conservative value to not overload
-// a USB power supply (500mA) for 12x12 pixels.
-#define BRIGHTNESS 4
-#define MX_COLORS 3
-#define MX_WIDTH 16
-#define MX_HEIGHT 16
-#define NUM_LEDS (MX_WIDTH*MX_HEIGHT)
-#define BITMAP_SIZE ( NUM_LEDS * MX_COLORS )
+
 
 CRGB leds[NUM_LEDS];
 // Define matrix width and height.
