@@ -7,7 +7,7 @@ const port = 2832
 
 const store = {};
 
-app.use(express.static(path.join(__dirname, '../dreamer/dist')))
+app.use(express.static(path.join(__dirname, '../data')))
 app.use(bodyParser.raw({limit: '50mb'}))
 app.use(bodyParser.json())
 app.use(cors())
@@ -20,6 +20,16 @@ app.get('/matrix-parameters', (req, res) => {
   res.send({
     width: 16,
     height: 16,
+    effects: [
+        'slide',
+        'bubble',
+        'fade'
+    ],
+    games: [
+        'snake',
+        'chess',
+        'football'
+    ]
   })
 })
 
@@ -69,6 +79,11 @@ app.get('/picture-effects', (req, res) => {
 })
 
 app.post('/picture-effects', (req, res) => {
+  console.log(req.body);
+  res.sendStatus(200);
+})
+
+app.post('/send-file', (req, res) => {
   console.log(req.body);
   res.sendStatus(200);
 })

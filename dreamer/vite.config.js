@@ -12,6 +12,7 @@ const aliases = {
 }
 
 module.exports = {
+    outDir: '../data/',
     resolvers: [
         {
             requestToFile: publicPath => {

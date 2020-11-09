@@ -29,10 +29,6 @@ import services from '/@utils/services';
 
 export default {
     name: 'app-settings',
-    data() {
-        return {
-        };
-    },
     methods: {
         upload (event) {
             const [file] = event.target.files;
@@ -40,7 +36,7 @@ export default {
             const formData = new FormData();
             formData.append('update', file);
 
-            services.sendUpdate(formData);
+            services.sendFile(formData);
         }
     },
 }
