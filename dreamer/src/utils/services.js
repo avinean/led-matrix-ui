@@ -90,17 +90,22 @@ class Services {
     return fetch(BASE_URI + '/' + action, { method: 'POST',});
   }
 
-  sendUpdate(body) {
+  sendFile(body) {
+    // is used for sending any file
     if (!body) return;
-    return fetch(BASE_URI + '/upload', { method: 'POST', body, });
+    return fetch(BASE_URI + '/send-file', { method: 'POST', body, });
   }
 
   getEffectsList() {
-    return fetch(BASE_URI + '/picture-effects').then(res => res.json());;
+    return fetch(BASE_URI + '/picture-effects').then(res => res.json());
   }
 
   setPictureEffects(body) {
     return fetch(BASE_URI + '/picture-effects', { method: 'POST', body: JSON.stringify(body),});
+  }
+
+  rotate() {
+    return fetch(BASE_URI + '/rotate', { method: 'POST' });
   }
 
 }

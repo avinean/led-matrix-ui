@@ -207,12 +207,6 @@ export default {
         sendData(params) {
             services.drawSinglePixel(params);
         },
-        getMatrixParameters() {
-            return services.getMatrixParameters()
-                .then(params => {
-                    this.matrixParams = params;
-                });
-        },
         refresh() {
             services.getMatrixState().then(({ value }) => {
                 // if user is currently drawing than 
@@ -227,12 +221,10 @@ export default {
         }
     },
     mounted() {
-        this.getMatrixParameters().then(() => {
-            this.initMatrix();
-            this.initPicker();
-            this.calculateCharSize();
-            this.refresh();
-        });
+        this.initMatrix();
+        this.initPicker();
+        this.calculateCharSize();
+        this.refresh();
     },
     unmounted() {
         setTimeout(() => {

@@ -2,9 +2,9 @@
     <div>
         <h4 class="ui horizontal divider header">
             <i class="film icon"></i>
-            Effect
+            Effects
         </h4>
-        <div class="ui card" style="width: auto;">
+        <div class="ui card center" style="width: auto;">
             <div class="content">
                 <div class="mb-10">
                     <select ref="dropdown" class="ui search dropdown">
@@ -16,14 +16,17 @@
                         >{{ effect }}</option>
                     </select>
                 </div>
-            </div>
-        </div>
-        <h4 class="ui horizontal divider header">
-            <i class="fast forward icon"></i>
-            Effect speed
-        </h4>
-        <div class="ui card" style="width: auto;">
-            <div class="content">
+
+                <div class="mb-10">
+                    <button
+                        class="ui right labeled icon button green"
+                        @click="rotate"
+                    >
+                        <i class="sync icon"></i>
+                        Rotate
+                    </button>
+                </div>
+
                 <div class="mb-10">
                     <div class="ui segment" style="display: flex;">
                         {{ speedConfig.min }} <div class="ui range" id="tmp"></div> {{ speedConfig.max }}
@@ -33,7 +36,7 @@
         </div>
         <div class="ui card" style="width: auto;">
             <div class="content">
-                <div class="upload__button">
+                <div class="center">
                     <button
                         class="ui right labeled icon button green"
                         @click="apply"
@@ -52,19 +55,11 @@ import services from "/@utils/services";
 
 export default {
     name: 'app-effects',
+    inject: ['store'],
     data() {
         return {
             selectedEffect: 0,
             speed: 5,
-            effectsList: [
-                'effect 1',
-                'effect 2',
-                'effect 3',
-                'effect 4',
-                'effect 5',
-                'effect 6',
-                'effect 7',
-            ],
             speedConfig: {
                 min: 1,
                 max: 6,
@@ -76,12 +71,20 @@ export default {
             second: 1000
         };
     },
-    watch: {
+    computed: {
+        effectsList() {
+            return this.store.state.matrixParams.effects;
+        }
+    },
+    methods: {
         apply() {
             services.setPictureEffects({
                 effect: this.selectedEffect,
                 speed: this.speed
             })
+        },
+        rotate() {
+            services.rotate();
         }
     },
     mounted() {

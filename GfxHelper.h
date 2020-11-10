@@ -240,7 +240,7 @@ matrix->setTextColor(c16b, c16bbg);
     // the delay become irrelevant. This is already true on a 32x32 array.
 //    delay(50/size);
 //    vTaskDelay( pdMS_TO_TICKS( 50/size ) );
-    vTaskDelay( pdMS_TO_TICKS( 150 ) );
+    vTaskDelay( pdMS_TO_TICKS( 50 ) );
   }
 //  matrix->setRotation(0);
 //  matrix->setCursor(0,0);
@@ -253,7 +253,7 @@ void scrollTextTaskCode( void * pvParameters ){
   for(;;){
     yield();
     display_scrollText((const char**)_RUN_TEXT_.c_str(), __RUNNING_STRING_COLOR, __RUNNING_STRING_BACKGROUND_COLOR);
-    vTaskDelay( pdMS_TO_TICKS( 150 ) );
+    vTaskDelay( pdMS_TO_TICKS( 50 ) );
   }
 }
 
@@ -341,13 +341,16 @@ matrix->drawRGBBitmap(x, y, bitmapNfo->bitmap, bitmapSize, bitmapSize);
       xfc = constrain(xfc + random(-1, 2), 3, 16);
       yfc = constrain(xfc + random(-1, 2), 3, 16);
   }
-  delay(100);
+//  delay(100);
+  vTaskDelay( pdMS_TO_TICKS( 100 ) );
     }
 }
 
 void drawTaskCode( void * pvParameters ){
   for(;;){
+    yield();
     display_panOrBounceBitmap(&drawTaskBitmapInfo);
+    vTaskDelay( pdMS_TO_TICKS( 50 ) );
   }
 }
 

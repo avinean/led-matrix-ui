@@ -7,13 +7,16 @@ volatile TaskHandle_t currentGfxTask;
 volatile TaskHandle_t Task1;
 volatile TaskHandle_t startupTask;
 
+volatile uint8_t _EFFECT_ID = 0;
+volatile uint8_t _EFFECT_SPEED = 50;
+
 
 bitmapInfo drawTaskBitmapInfo;
 //uint8_t drawTaskBitmapBuffer[BITMAP_SIZE*4];
 volatile uint16_t drawTaskBitmapBuffer[NUM_LEDS];
 
 
-//const String CONFIG_IDF_TARGET = "esp32";
+const String CONFIG_IDF_TARGET = "esp32";
 
 #include <ESPAsyncWebServer.h>
 // Create AsyncWebServer object on port 80
@@ -28,6 +31,7 @@ FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(leds, MX_WIDTH, MX_HEIGHT,
     NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG + 
     NEO_TILE_TOP + NEO_TILE_RIGHT +  NEO_TILE_PROGRESSIVE);
 
+volatile uint8_t _MX_ROTATION = 0;
     
 // тип текущего эффекта: 0 бегущая строка, 1 часы, 2 игры, 3 нойс маднесс и далее, 21 гифка или картинка
 #define __MODE_CANVAS 0

@@ -8,27 +8,23 @@
             <div class="content">
                 <div class="mb-10">
 
-                    <div class="ui floating labeled icon dropdown button" id="dropdown">
-                        <i class="icon" :class="selectedGame.icon || 'chess'"></i>
-                        <span class="text">Game</span>
-                        <div class="menu">
-                            <div
-                                v-for="game in gamesList"
-                                :key="game.label"
-                                :data-value="game.value"
-                                :data-text="game.name"
-                                selected
-                                class="item"
-                            >
-                                <i class="icon" :class="game.icon"></i>
-                                {{ game.name }}
-                            </div>
-                        </div>
-                    </div>
+                    <select
+                        v-model="currentGame"
+                        class="ui dropdown"
+                        id="dropdown"
+                    >
+                        <option
+                            v-for="game in gamesList"
+                            :key="game"
+                            :value="game"
+                        >
+                            {{ game }}
+                        </option>
+                    </select>
                     
                     <button
                         class="ui left labeled icon button green"
-                        :disabled="!selectedGame.value"
+                        :disabled="!currentGame"
                         @click="play"
                     >
                         <i class="play icon"></i>
@@ -91,31 +87,24 @@ import services from '/@utils/services';
 
 export default {
     name: 'app-games',
+    inject: ['store'],
     data() {
         return {
-            gamesList: [
-                {
-                    icon: 'python',
-                    name: 'Snake',
-                    value: 'snake',
-                    selected: true,
-                }
-            ],
             currentGame: '',
             gameStarted: false
         };
     },
     computed: {
-        selectedGame() {
-            return this.gamesList.find(game => game.value === this.currentGame) || {};
-        }
+        gamesList() {
+            return this.store.state.matrixParams.games || [];
+        },
     },
     methods: {
         play() {
-            if (!this.selectedGame.value) return;
+            if (!this.currentGame) return;
 
             services.playGame({
-                game: this.selectedGame.value,
+                game: this.currentGame,
             }).then(() => this.gameStarted = true);
         },
         up() {
@@ -141,12 +130,7 @@ export default {
         }
     },
     mounted() {
-        $('#dropdown').dropdown({
-            value: this.currentGame,
-            onChange: (value) => {
-                this.currentGame = value;
-            }
-        });
+        $('#dropdown').dropdown();
 
         document.addEventListener('keydown', this.watchKeys);
     },

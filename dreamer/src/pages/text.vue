@@ -27,9 +27,9 @@
             Settings
         </h4>
         <div class="ui card" style="width: auto;">
-            <div class="content">
+            <div class="content center">
                 <button
-                    class="ui right labeled icon button primary"
+                    class="ui right labeled icon button primary mb-10"
                     @click="pickerMode = pickerModes.color; picker.show();"
                 >
                     <i class="eye dropper icon"></i> Set color
@@ -40,7 +40,7 @@
                 ></i>
 
                 <button
-                    class="ui right labeled icon button teal"
+                    class="ui right labeled icon button teal mb-10"
                     @click="pickerMode = pickerModes.backgroundColor; picker.show();"
                 >
                     <i class="magic icon"></i> Set background color
@@ -51,10 +51,20 @@
                 ></i>
 
                 <div ref="colorPicker"></div>
-            </div>
-            <div class="content" v-show="selectedEffect === effectsList.text">
+
                 <div class="mb-10">
-                    <div class="ui input" style="margin-right: 20px;">
+                    <button
+                        class="ui right labeled icon button green"
+                        @click="rotate"
+                    >
+                        <i class="sync icon"></i>
+                        Rotate
+                    </button>
+                </div>
+            </div>
+            <div class="content center" v-show="selectedEffect === effectsList.text">
+                <div class="mb-10">
+                    <div class="ui input mb-10" style="margin-right: 20px;">
                         <input
                             v-model="textConfig.string"
                             type="text"
@@ -67,14 +77,13 @@
                     </div>
                 </div>
                 <div class="mb-10">
-                    <div>Speed</div>
                     <div class="ui segment" style="display: flex;">
                         {{ speedConfig.min }} <div class="ui range" id="tmp"></div> {{ speedConfig.max }}
                     </div>
                 </div>
             </div>
             <div class="content form" v-show="selectedEffect === effectsList.clock">
-                <div class="grouped fields">
+                <div class="grouped fields center">
                     <label for="fruit">Syncronize clock:</label>
                     <div class="field">
                         <div class="ui radio checkbox">
@@ -99,7 +108,7 @@
                 </div>
             </div>
             <div class="content">
-                <div class="upload__button">
+                <div class="center">
                     <button
                         class="ui right labeled icon button green"
                         @click="apply"
@@ -198,6 +207,9 @@ export default {
                     backgroundColor: this.backgroundColor
                 });
             }
+        },
+        rotate() {
+            services.rotate();
         }
     },
     mounted() {

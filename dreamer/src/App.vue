@@ -1,5 +1,5 @@
 <template>
-    <app-home/>
+    <app-home v-if="inited"/>
 </template>
 
 <script>
@@ -15,8 +15,17 @@ export default {
     components: {
         AppHome,
     },
+    data() {
+        return {
+            inited: false
+        }
+    },
     mounted() {
-        services.getMatrixParameters();
+        services
+            .getMatrixParameters()
+            .then(() => {
+                this.inited = true;
+            });
     }
 }
 </script>
@@ -102,5 +111,9 @@ export default {
 
 .mb-10 {
     margin-bottom: 10px !important;
+}
+
+.center {
+    text-align: center;
 }
 </style>

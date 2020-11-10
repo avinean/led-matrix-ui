@@ -13,6 +13,7 @@
 #include "globals.h"
 
 #include "TasksHelper.h"
+#include "EffectsHelper.h"
 
 
 
@@ -87,10 +88,72 @@ void setupServer(AsyncWebServer* server){
   // I guess this string can work the same way as setupDefaultEndpoints(&server)
   server->serveStatic("/", SPIFFS, "/").setDefaultFile("index.html");
 
+server->on("/picture-effects", HTTP_GET, [](AsyncWebServerRequest *request){
+  Serial.printf("/picture-effects(GET)\n");
+  // Handling function
+    StaticJsonDocument<400> data;
+//    JsonObject root = data.to<JsonObject>();
+
+    JsonArray arr = data.to<JsonArray>();//root.createNestedArray("effects");
+    arr.add("MirroredNoise");
+    arr.add("RedClouds");
+    arr.add("Lavalamp1");
+    arr.add("Lavalamp2");
+    arr.add("Lavalamp3");
+    arr.add("Lavalamp4");
+    arr.add("Lavalamp5");
+    arr.add("Constrained1");
+    arr.add("RelativeMotion1");
+    arr.add("Water");
+    arr.add("Bubbles1");
+    arr.add("TripleMotion");
+    
+//    data["width"] = MX_WIDTH;
+//    data["height"] = MX_HEIGHT;
+    
+    String response;
+    serializeJson(data, response);
+    request->send(200, "application/json", response);
+  });
+
+  server->on("/picture-effects", HTTP_POST, [](AsyncWebServerRequest *request){
+      //nothing and dont remove it
+    }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
+      Serial.printf("/picture-effects(POST)\n");
+      DynamicJsonDocument root(128);
+      err = deserializeJson(root, (const char*)data);
+      if (err == DeserializationError::Ok) {
+        // Get a reference to the root object
+        JsonObject obj = root.as<JsonObject>();  
+        _EFFECT_ID = obj["effect"];
+        _EFFECT_SPEED = obj["speed"];
+        
+        Serial.printf("Effect ID: %u, speed: %u\n\n", _EFFECT_ID, _EFFECT_SPEED);        
+
+        startTask(
+          effectsTaskCode,   /* Task function. */
+          "effects",     /* name of task. */
+          2000 ,       /* Stack size of task */
+          NULL,        /* parameter of the task */
+          2,           /* priority of the task */          
+          1);          /* pin task to core 0 */   
+        
+        request->send(200, "text/plain", "ack");
+      } else
+        request->send(404, "text/plain", ":(");
+  });
+
+  server->on("/rotate", HTTP_POST, [](AsyncWebServerRequest *request){    
+    _MX_ROTATION =  ( ++_MX_ROTATION > 3 ? 0 : _MX_ROTATION );
+    Serial.printf("/rotate: %d\n", _MX_ROTATION);
+    matrix->setRotation(_MX_ROTATION);    
+    request->send(200, "text/plain", "ack");
+  });
+
   server->on("/updatefw", HTTP_GET, indexrequest);
 
   // handler for the /update form POST (once file upload finishes)
-  server->on("/upload", HTTP_POST, [](AsyncWebServerRequest *request){    
+  server->on("/send-file", HTTP_POST, [](AsyncWebServerRequest *request){    
     request->send(200);
   }, handle_update_progress_cb);
 
@@ -186,9 +249,26 @@ void setupServer(AsyncWebServer* server){
 
   server->on("/matrix-parameters", HTTP_GET, [](AsyncWebServerRequest *request){
   // Handling function
-    StaticJsonDocument<100> data;
-    data["width"] = MX_WIDTH;
-    data["height"] = MX_HEIGHT;
+    StaticJsonDocument<500> data;
+    JsonObject root = data.to<JsonObject>();
+    
+    root["width"] = MX_WIDTH;
+    root["height"] = MX_HEIGHT;
+
+  
+    JsonArray arr = root.createNestedArray("effects");
+    arr.add("MirroredNoise");
+    arr.add("RedClouds");
+    arr.add("Lavalamp1");
+    arr.add("Lavalamp2");
+    arr.add("Lavalamp3");
+    arr.add("Lavalamp4");
+    arr.add("Lavalamp5");
+    arr.add("Constrained1");
+    arr.add("RelativeMotion1");
+    arr.add("Water");
+    arr.add("Bubbles1");
+    arr.add("TripleMotion");
     
     String response;
     serializeJson(data, response);
@@ -224,25 +304,13 @@ void setupServer(AsyncWebServer* server){
         __RUNNING_STRING_BACKGROUND_COLOR = CRGB( br, bg, bb );
         enableTextMode();
         Serial.printf("str = %s, spd = %u, r: %u g: %u b: %u, br: %u bg: %u bb: %u\n\n", (String)_RUN_TEXT_.c_str(), (int)_RUN_TEXT_SPEED_, r, g, b, br, bg, bb); 
-//        display_scrollText(_RUN_TEXT_.c_str(), __RUNNING_STRING_COLOR, __RUNNING_STRING_BACKGROUND_COLOR);
 
-//startRunningTextTask();
-//xTaskCreatePinnedToCore(
-//    scrollTextTaskCode,   /* Task function. */
-//    "scrollText",     /* name of task. */
-//    10000,       /* Stack size of task */
-//    NULL,        /* parameter of the task */
-//    2,           /* priority of the task */
-//    &currentGfxTask,      /* Task handle to keep track of created task */
-//    1);          /* pin task to core 0 */
-//scrollTextTaskCode
 startTask(
     scrollTextTaskCode,   /* Task function. */
     "scrollText",     /* name of task. */
     10000,       /* Stack size of task */
     NULL,        /* parameter of the task */
-    2,           /* priority of the task */
-    (void**)&currentGfxTask,      /* Task handle to keep track of created task */
+    2,           /* priority of the task */    
     1);
  
         request->send(200, "text/plain", "ack");
@@ -268,45 +336,8 @@ startTask(
     "scrollText",     /* name of task. */
     10000,       /* Stack size of task */
     NULL,        /* parameter of the task */
-    2,           /* priority of the task */
-    (void**)&currentGfxTask,      /* Task handle to keep track of created task */
+    2,           /* priority of the task */    
     1);          /* pin task to core 0 */                  
-
-Serial.printf("dumpPtr(drawTaskBitmapBuffer)\n");
-dumpPtr((const uint8_t*)&drawTaskBitmapBuffer, BITMAP_SIZE );    
-//matrix->clear();    
-//matrix->drawRGBBitmap(0, 0, (const unsigned short*)&drawTaskBitmapBuffer, MX_WIDTH, MX_HEIGHT);
-//matrix->show();
-//
-//Serial.printf("dumpPtr(leds)\n");
-//dumpPtr((const uint8_t*)&leds, BITMAP_SIZE );
-
-
-/*
-    matrix->clear();    
-//    memmove( &leds, data, BITMAP_SIZE );
-//Serial.printf("dumpPtr(leds)\n");
-//dumpPtr((const uint8_t*)&leds, BITMAP_SIZE );
-    memset ( drawTaskBitmapBuffer, 0x00, sizeof(drawTaskBitmapBuffer));
-    memmove( &drawTaskBitmapBuffer, data, BITMAP_SIZE );
-Serial.printf("dumpPtr(drawTaskBitmapBuffer)\n");
-dumpPtr((const uint8_t*)&drawTaskBitmapBuffer, BITMAP_SIZE );    
-//fixdrawRGBBitmap(0, 0, (const unsigned short*)&drawTaskBitmapBuffer, MX_WIDTH, MX_HEIGHT);
-matrix->drawRGBBitmap(0, 0, (const unsigned short*)&drawTaskBitmapBuffer, MX_WIDTH, MX_HEIGHT);
-//    startDrawTask();    
-    matrix->show();
-Serial.printf("dumpPtr(leds)\n");
-dumpPtr((const uint8_t*)&leds, BITMAP_SIZE );
-
-delay(500);
-
-
-matrix->clear();    
-memmove( &leds, data, BITMAP_SIZE );
-matrix->show();
-Serial.printf("dumpPtr(leds)!!\n");
-dumpPtr((const uint8_t*)&leds, BITMAP_SIZE );
-*/
 
     disableGameMode();
     disableCanvasMode();
