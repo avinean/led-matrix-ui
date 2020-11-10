@@ -198,7 +198,7 @@ void display_resolution() {
 
 
 
-void display_scrollText(const char txt[], CRGB tcolor, CRGB bgcolor) {
+void display_scrollText(const char* txt[], const CRGB tcolor, const CRGB bgcolor) {
   uint8_t size = max(int(MX_WIDTH/8), 1);
   matrix->clear();
   matrix->setTextWrap(false);  // we don't wrap text so it scrolls nicely
@@ -234,50 +234,30 @@ matrix->setTextColor(c16b, c16bbg);
     yield();
     matrix->clear();
     matrix->setCursor(x,MX_WIDTH/2-size*4);
-    matrix->print(txt);
+    matrix->print((const char*)txt);
     matrix->show();
     // note that on a big array the refresh rate from show() will be slow enough that
     // the delay become irrelevant. This is already true on a 32x32 array.
 //    delay(50/size);
-    vTaskDelay( pdMS_TO_TICKS( 50/size ) );
+//    vTaskDelay( pdMS_TO_TICKS( 50/size ) );
+    vTaskDelay( pdMS_TO_TICKS( 150 ) );
   }
-  matrix->setRotation(0);
-  matrix->setCursor(0,0);
-  matrix->show();
+//  matrix->setRotation(0);
+//  matrix->setCursor(0,0);
+//  matrix->show();
 }
 
 void scrollTextTaskCode( void * pvParameters ){
+  matrix->clear();
+  matrix->show();
   for(;;){
-    display_scrollText(_RUN_TEXT_.c_str(), __RUNNING_STRING_COLOR, __RUNNING_STRING_BACKGROUND_COLOR);
+    yield();
+    display_scrollText((const char**)_RUN_TEXT_.c_str(), __RUNNING_STRING_COLOR, __RUNNING_STRING_BACKGROUND_COLOR);
+    vTaskDelay( pdMS_TO_TICKS( 150 ) );
   }
 }
 
-void startRunningTextTask(){
-  TaskHandle_t xTask = currentGfxTask;
 
-  vTaskSuspendAll();  
-  if( currentGfxTask != NULL ){
-      /* The task is going to be deleted.
-      Set the handle to NULL. */
-      currentGfxTask = NULL;
-  
-      /* Delete using the copy of the handle. */
-      vTaskDelete( xTask );
-  }  
-//  if( currentGfxTask != NULL ){
-//     vTaskDelete( currentGfxTask );
-//     currentGfxTask = NULL;
-//   }
-  xTaskCreatePinnedToCore(
-    scrollTextTaskCode,   /* Task function. */
-    "scrollText",     /* name of task. */
-    10000,       /* Stack size of task */
-    NULL,        /* parameter of the task */
-    2,           /* priority of the task */
-    &currentGfxTask,      /* Task handle to keep track of created task */
-    1);          /* pin task to core 0 */                  
-    xTaskResumeAll();
-}
 
 uint8_t bitmapIdx = 0;
 
@@ -288,10 +268,11 @@ uint8_t bitmapIdx = 0;
 
 
 
+
 // Scroll within big bitmap so that all if it becomes visible or bounce a small one.
 // If the bitmap is bigger in one dimension and smaller in the other one, it will
 // be both panned and bounced in the appropriate dimensions.
-void display_panOrBounceBitmap (const bitmapInfo* bitmapNfo) {
+void display_panOrBounceBitmap (volatile const bitmapInfo* bitmapNfo) {
   uint8_t bitmapSize = bitmapNfo->width;
     // keep integer math, deal with values 16 times too big
     // start by showing upper left of big bitmap or centering if the display is big
@@ -329,28 +310,28 @@ matrix->drawRGBBitmap(x, y, bitmapNfo->bitmap, bitmapSize, bitmapSize);
    
   // Only pan if the display size is smaller than the pixmap
   // but not if the difference is too small or it'll look bad.
-  if (bitmapSize-MX_WIDTH>2) {
+  if (bitmapSize-(MX_WIDTH % 2 )>2) {
       xf += xfc*xfdir;
       if (xf >= 0)                      { xfdir = -1; updDir = true ; };
       // we don't go negative past right corner, go back positive
-      if (xf <= ((MX_WIDTH-bitmapSize) << 4)) { xfdir = 1;  updDir = true ; };
+      if (xf <= (((MX_WIDTH % 2 )-bitmapSize) << 4)) { xfdir = 1;  updDir = true ; };
   }
-  if (bitmapSize-MX_HEIGHT>2) {
+  if (bitmapSize-( MX_HEIGHT % 2 )>2) {
       yf += yfc*yfdir;
       // we shouldn't display past left corner, reverse direction.
       if (yf >= 0)                      { yfdir = -1; updDir = true ; };
-      if (yf <= ((MX_HEIGHT-bitmapSize) << 4)) { yfdir = 1;  updDir = true ; };
+      if (yf <= ((( MX_HEIGHT % 2 )-bitmapSize) << 4)) { yfdir = 1;  updDir = true ; };
   }
   // only bounce a pixmap if it's smaller than the display size
-  if (MX_WIDTH>bitmapSize) {
+  if ((2*MX_WIDTH)>bitmapSize) {
       xf += xfc*xfdir;
       // Deal with bouncing off the 'walls'
-      if (xf >= (MX_WIDTH-bitmapSize) << 4) { xfdir = -1; updDir = true ; };
+      if (xf >= ((2*MX_WIDTH)-bitmapSize) << 4) { xfdir = -1; updDir = true ; };
       if (xf <= 0)           { xfdir =  1; updDir = true ; };
   }
-  if (MX_HEIGHT>bitmapSize) {
+  if ((2*MX_HEIGHT)>bitmapSize) {
       yf += yfc*yfdir;
-      if (yf >= (MX_HEIGHT-bitmapSize) << 4) { yfdir = -1; updDir = true ; };
+      if (yf >= ((2*MX_HEIGHT)-bitmapSize) << 4) { yfdir = -1; updDir = true ; };
       if (yf <= 0)           { yfdir =  1; updDir = true ; };
   }
   
@@ -360,9 +341,42 @@ matrix->drawRGBBitmap(x, y, bitmapNfo->bitmap, bitmapSize, bitmapSize);
       xfc = constrain(xfc + random(-1, 2), 3, 16);
       yfc = constrain(xfc + random(-1, 2), 3, 16);
   }
-  delay(10);
+  delay(100);
     }
 }
+
+void drawTaskCode( void * pvParameters ){
+  for(;;){
+    display_panOrBounceBitmap(&drawTaskBitmapInfo);
+  }
+}
+
+//void startDrawTask(){
+//  TaskHandle_t xTask = currentGfxTask;
+//
+//  vTaskSuspendAll();  
+//  if( currentGfxTask != NULL ){
+//      /* The task is going to be deleted.
+//      Set the handle to NULL. */
+//      currentGfxTask = NULL;
+//  
+//      /* Delete using the copy of the handle. */
+//      vTaskDelete( xTask );
+//  }  
+//
+//drawTaskBitmapInfo = (bitmapInfo){ (const short unsigned int*)&drawTaskBitmapBuffer, 16, 16, 0 };
+//
+//  xTaskCreatePinnedToCore(
+//    drawTaskCode,   /* Task function. */
+//    "scrollText",     /* name of task. */
+//    10000,       /* Stack size of task */
+//    NULL,        /* parameter of the task */
+//    2,           /* priority of the task */
+//    &currentGfxTask,      /* Task handle to keep track of created task */
+//    1);          /* pin task to core 0 */                  
+//    xTaskResumeAll();
+//}
+
 
 void doLoop(){
       // clear the screen after X bitmaps have been displayed and we
@@ -444,7 +458,7 @@ void doLoop(){
     delay(MX_WIDTH>8?1000:500);
 
     Serial.println("Scrolltext");
-    display_scrollText("Scrolltext", CRGB::Red, CRGB::Black);
+    display_scrollText((const char**)&"Scrolltext", CRGB::Red, CRGB::Black);
 
 
 //drawNextBitmap();

@@ -67,13 +67,6 @@ void dumpFile(const char* fname){
   }
 }
 
-void dumpPtr(const uint8_t* fdst, uint16_t fsize){
-    Serial.println("=====================================");    
-    for ( uint16_t i =0; i< fsize; i++ ){
-      Serial.printf("%2X ", fdst[i]);            
-    }
-    Serial.println("=====================================");
-}
 
 void readFromFile(const char* fname, const uint8_t* fdst, uint16_t fsize){
   File file = SPIFFS.open(fname, "r");
@@ -124,7 +117,7 @@ void listFiles(void) {
   listDir(SPIFFS, "/", 0);
 }
 
-typedef void (*doOnFileFoundCallback)(const char * dirname, const char * fileName);
+
 
 void findFilesInDir(fs::FS &fs, const char * dirname, const char * fileExt, uint8_t levels, doOnFileFoundCallback callback) {
 

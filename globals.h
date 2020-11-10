@@ -3,10 +3,14 @@
 
 #include "defs.h"
 
-TaskHandle_t currentGfxTask;
+volatile TaskHandle_t currentGfxTask;
+volatile TaskHandle_t Task1;
+volatile TaskHandle_t startupTask;
 
 
-
+bitmapInfo drawTaskBitmapInfo;
+//uint8_t drawTaskBitmapBuffer[BITMAP_SIZE*4];
+volatile uint16_t drawTaskBitmapBuffer[NUM_LEDS];
 
 
 //const String CONFIG_IDF_TARGET = "esp32";
@@ -29,13 +33,15 @@ FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(leds, MX_WIDTH, MX_HEIGHT,
 #define __MODE_CANVAS 0
 #define __MODE_TEXT   1
 #define __MODE_GAME   2
-unsigned char __CURRENT_MODE = __MODE_CANVAS;//__MODE_TEXT;
+volatile unsigned char __CURRENT_MODE = __MODE_CANVAS;//__MODE_TEXT;
 
+//volatile 
 String _GAME_NAME_;
-byte _GAME_BUTTONS_ = 4;                  // Управление играми: нажата кнопка: 0 - верх, 1 - право, 2 - низ, 3 - лево, 4 - не нажата
+volatile byte _GAME_BUTTONS_ = 4;                  // Управление играми: нажата кнопка: 0 - верх, 1 - право, 2 - низ, 3 - лево, 4 - не нажата
 
+//volatile 
 String _RUN_TEXT_ = "hello world";
-int _RUN_TEXT_SPEED_ = 200;
+volatile int _RUN_TEXT_SPEED_ = 200;
 CRGB __RUNNING_STRING_COLOR = CRGB::Yellow;
 CRGB __RUNNING_STRING_BACKGROUND_COLOR = CRGB::Blue;
 

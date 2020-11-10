@@ -81,7 +81,8 @@ void jpegRender(int xpos, int ypos) {
   max_y += ypos;
 
   // read each MCU block until there are no more
-  while ( JpegDec.readSwappedBytes()) { // Swapped byte order read
+//  while ( JpegDec.readSwappedBytes()) { // Swapped byte order read
+  while ( JpegDec.read()) { // Swapped byte order read
 
     // save a pointer to the image block
     pImg = JpegDec.pImage;
@@ -113,6 +114,7 @@ void jpegRender(int xpos, int ypos) {
       // Now push the image block to the screen
 //      tft.pushImage(mcu_x, mcu_y, win_w, win_h, pImg);
       matrix->drawRGBBitmap(mcu_x, mcu_y, pImg, win_w, win_h);
+//      fixdrawRGBBitmap(mcu_x, mcu_y, pImg, win_w, win_h);
     }
 
     else if ( ( mcu_y + win_h) >= MX_HEIGHT) JpegDec.abort();

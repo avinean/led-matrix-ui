@@ -12,6 +12,8 @@
 
 #include "globals.h"
 
+#include "TasksHelper.h"
+
 
 
 //unsigned char resp[NUM_LEDS];
@@ -132,7 +134,7 @@ void setupServer(AsyncWebServer* server){
       // Get a reference to the root object
       JsonObject obj = root.as<JsonObject>();  
       _GAME_NAME_ = obj["game"].as<String>();
-      Serial.printf("%s\n\n", _GAME_NAME_.c_str());
+      Serial.printf("%s\n\n", (const char**)(_GAME_NAME_.c_str()));
       disableGameMode();
       disableCanvasMode();
       disableTextMode();        
@@ -221,10 +223,27 @@ void setupServer(AsyncWebServer* server){
         unsigned char bb = obj["backgroundColor"]["b"];
         __RUNNING_STRING_BACKGROUND_COLOR = CRGB( br, bg, bb );
         enableTextMode();
-        Serial.printf("str = %s, spd = %u, r: %u g: %u b: %u, br: %u bg: %u bb: %u\n\n", _RUN_TEXT_.c_str(), _RUN_TEXT_SPEED_, r, g, b, br, bg, bb); 
+        Serial.printf("str = %s, spd = %u, r: %u g: %u b: %u, br: %u bg: %u bb: %u\n\n", (String)_RUN_TEXT_.c_str(), (int)_RUN_TEXT_SPEED_, r, g, b, br, bg, bb); 
 //        display_scrollText(_RUN_TEXT_.c_str(), __RUNNING_STRING_COLOR, __RUNNING_STRING_BACKGROUND_COLOR);
 
-startRunningTextTask();
+//startRunningTextTask();
+//xTaskCreatePinnedToCore(
+//    scrollTextTaskCode,   /* Task function. */
+//    "scrollText",     /* name of task. */
+//    10000,       /* Stack size of task */
+//    NULL,        /* parameter of the task */
+//    2,           /* priority of the task */
+//    &currentGfxTask,      /* Task handle to keep track of created task */
+//    1);          /* pin task to core 0 */
+//scrollTextTaskCode
+startTask(
+    scrollTextTaskCode,   /* Task function. */
+    "scrollText",     /* name of task. */
+    10000,       /* Stack size of task */
+    NULL,        /* parameter of the task */
+    2,           /* priority of the task */
+    (void**)&currentGfxTask,      /* Task handle to keep track of created task */
+    1);
  
         request->send(200, "text/plain", "ack");
       } else
@@ -236,9 +255,58 @@ server->on("/draw", HTTP_POST, [](AsyncWebServerRequest *request){
   }, NULL, [](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total){
     Serial.printf("/draw: len=%u, idx=%u, ttl=%u\n", len, index, total);
 
-    matrix->clear();
-    memmove( &leds, data, BITMAP_SIZE );
+
+uint16_t _didx = 0;
+for ( uint16_t _idx = 0; _idx < NUM_LEDS; _idx++ ){
+  drawTaskBitmapBuffer[_idx] = matrix->Color(data[_didx++], data[_didx++], data[_didx++]);
+}
+
+//startDrawTask();
+drawTaskBitmapInfo = (bitmapInfo){ (const short unsigned int*)&drawTaskBitmapBuffer, 16, 16, 0 };
+startTask(
+    drawTaskCode,   /* Task function. */
+    "scrollText",     /* name of task. */
+    10000,       /* Stack size of task */
+    NULL,        /* parameter of the task */
+    2,           /* priority of the task */
+    (void**)&currentGfxTask,      /* Task handle to keep track of created task */
+    1);          /* pin task to core 0 */                  
+
+Serial.printf("dumpPtr(drawTaskBitmapBuffer)\n");
+dumpPtr((const uint8_t*)&drawTaskBitmapBuffer, BITMAP_SIZE );    
+//matrix->clear();    
+//matrix->drawRGBBitmap(0, 0, (const unsigned short*)&drawTaskBitmapBuffer, MX_WIDTH, MX_HEIGHT);
+//matrix->show();
+//
+//Serial.printf("dumpPtr(leds)\n");
+//dumpPtr((const uint8_t*)&leds, BITMAP_SIZE );
+
+
+/*
+    matrix->clear();    
+//    memmove( &leds, data, BITMAP_SIZE );
+//Serial.printf("dumpPtr(leds)\n");
+//dumpPtr((const uint8_t*)&leds, BITMAP_SIZE );
+    memset ( drawTaskBitmapBuffer, 0x00, sizeof(drawTaskBitmapBuffer));
+    memmove( &drawTaskBitmapBuffer, data, BITMAP_SIZE );
+Serial.printf("dumpPtr(drawTaskBitmapBuffer)\n");
+dumpPtr((const uint8_t*)&drawTaskBitmapBuffer, BITMAP_SIZE );    
+//fixdrawRGBBitmap(0, 0, (const unsigned short*)&drawTaskBitmapBuffer, MX_WIDTH, MX_HEIGHT);
+matrix->drawRGBBitmap(0, 0, (const unsigned short*)&drawTaskBitmapBuffer, MX_WIDTH, MX_HEIGHT);
+//    startDrawTask();    
     matrix->show();
+Serial.printf("dumpPtr(leds)\n");
+dumpPtr((const uint8_t*)&leds, BITMAP_SIZE );
+
+delay(500);
+
+
+matrix->clear();    
+memmove( &leds, data, BITMAP_SIZE );
+matrix->show();
+Serial.printf("dumpPtr(leds)!!\n");
+dumpPtr((const uint8_t*)&leds, BITMAP_SIZE );
+*/
 
     disableGameMode();
     disableCanvasMode();

@@ -1,5 +1,5 @@
-#ifndef _SERVERHELPER_H_
-#define _SERVERHELPER_H_
+#ifndef _WIRELESSHELPER_H_
+#define _WIRELESSHELPER_H_
 
 // Import required libraries
 #include "WiFi.h"

@@ -5,6 +5,11 @@
 #include <FastLED_NeoMatrix.h>
 #include <FastLED.h>
 
+
+typedef void (*doOnFileFoundCallback)(const char * dirname, const char * fileName);
+typedef void (*taskFunctionPtr)(void * pvParameters);
+
+
 // Max is 255, 32 is a conservative value to not overload
 // a USB power supply (500mA) for 12x12 pixels.
 #define BRIGHTNESS 4
