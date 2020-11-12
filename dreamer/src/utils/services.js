@@ -53,11 +53,24 @@ class Services {
 
   getImagesFromGallery() {
     globalStore.setLoading(true);
-    return fetch('https://dreamer-led.000webhostapp.com')
+    return fetch('https://dreamer-led.000webhostapp.com/images.php')
         .then(res => res.json())
         .then((response) => {
           if (response.imageList.length) {
             globalStore.setGalleryLinks(response.imageList);
+          }
+        }).finally(() => {
+          globalStore.setLoading();
+        });
+  }
+
+  getAnimationsFromGallery() {
+    globalStore.setLoading(true);
+    return fetch('https://dreamer-led.000webhostapp.com/gifs.php')
+        .then(res => res.json())
+        .then((response) => {
+          if (response.gifsList.length) {
+            globalStore.setGalleryLinks(response.gifsList);
           }
         }).finally(() => {
           globalStore.setLoading();
