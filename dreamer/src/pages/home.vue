@@ -1,42 +1,7 @@
 <template>
     <div>
         <div class="ui container main">
-            <div
-                v-if="currentTab === 'Picture'"
-                class="ui segment"
-            >
-                <app-picture></app-picture>
-            </div>
-            <div
-                v-if="currentTab === 'Text/Clock'"
-                class="ui segment"
-            >
-                <app-text></app-text>
-            </div>
-            <div
-                v-if="currentTab === 'Effects for picture'"
-                class="ui segment"
-            >
-                <app-effects></app-effects>
-            </div>
-            <div
-                v-if="currentTab === 'Animations'"
-                class="ui segment"
-            >
-                <app-animations></app-animations>
-            </div>
-            <div
-                v-if="currentTab === 'Games'"
-                class="ui segment"
-            >
-                <app-games></app-games>
-            </div>
-            <div
-                v-if="currentTab === 'Settings'"
-                class="ui segment"
-            >
-                <app-settings></app-settings>
-            </div>
+            <component :is="currentPage.component" />
 
             <div
                 class="main__menu"
@@ -44,14 +9,14 @@
                 @click="isMenuOpened = !isMenuOpened"
             >
                 <button
-                    v-for="(tab, i) in tabs"
+                    v-for="(tab, key) in tabs"
                     class="ui circular icon button massive main__menu-item"
                     :class="[
-                    tab.key === currentTab ? 'main__menu-item--active' : '',
-                    colors[i]
-                ].join(' ')"
-                    :key="tab.key"
-                    @click="goTo(tab.key)"
+                        key === currentTab ? 'main__menu-item--active' : '',
+                        tab.color
+                    ].join(' ')"
+                    :key="key"
+                    @click="currentTab = key"
                 >
                     <i
                         class="icon"
@@ -72,86 +37,83 @@
 </template>
 
 <script>
-import AppGames from '/@pages/games.vue';
-import AppAnimations from '/@pages/animations.vue';
-import AppEffects from '/@pages/effects.vue';
-import AppText from '/@pages/text.vue';
-import AppPicture from '/@pages/picture.vue';
-import AppSettings from '/@pages/settings.vue';
+import { defineComponent } from '/@utils/modifiers';
 
 export default {
     name: 'app-home',
     inject: ['store'],
-    components: {
-        AppGames,
-        AppAnimations,
-        AppEffects,
-        AppText,
-        AppPicture,
-        AppSettings,
-    },
     data() {
         return {
-            colors: ['red', 'green', 'teal', 'blue', 'violet', 'brown', 'grey'],
-            tabs: [
-                {
-                    key: 'Picture',
+            tabs: {
+                'Picture': {
                     label: 'Picture',
-                    icon: 'image'
+                    icon: 'image',
+                    component: defineComponent(() => import('/@pages/picture.vue')),
+                    color: 'red'
                 },
-                {
-                    key: 'Text/Clock',
+                'Text/Clock': {
                     label: 'Text/Clock',
                     icon: 'keyboard outline',
+                    component: defineComponent(() => import('/@pages/text.vue')),
+                    color: 'green'
                 },
-                {
-                    key: 'Animations',
+                'Animations': {
                     label: 'Animations',
-                    icon: 'play'
+                    icon: 'play',
+                    component: defineComponent(() => import('/@pages/animations.vue')),
+                    color: 'teal'
                 },
-                {
-                    key: 'Effects for picture',
+                'Effects for picture': {
                     label: 'Effects for picture',
-                    icon: 'film'
+                    icon: 'film',
+                    component: defineComponent(() => import('/@pages/effects.vue')),
+                    color: 'blue'
                 },
-                {
-                    key: 'Games',
+                'Games': {
                     label: 'Games',
-                    icon: 'chess'
+                    icon: 'chess',
+                    component: defineComponent(() => import('/@pages/games.vue')),
+                    color: 'yellow'
                 },
-                {
-                    key: 'Settings',
+                'Settings': {
                     label: 'Settings',
-                    icon: 'cogs'
+                    icon: 'cogs',
+                    component: defineComponent(() => import('/@pages/settings.vue')),
+                    color: 'orange'
                 },
-            ],
-            currentTab: '',
+            },
             isMenuOpened: false,
+            openedPage: ''
         };
     },
-    watch: {
-        currentTab() {
-            localStorage.currentTab = this.currentTab;
+    computed: {
+        currentPage() {
+            return this.tabs[this.currentTab];
+        },
+        currentTab: {
+            get() {
+                return this.openedPage || localStorage.currentTab || Object.keys(this.tabs)[0];
+            },
+            set(tab) {
+                if (this.isMenuOpened) {
+                    this.openedPage = tab;
+                    localStorage.currentTab = tab;
+                }
+            }
         }
     },
-    methods: {
-      goTo(tab) {
-        if (this.isMenuOpened) {
-          this.currentTab = tab;
-        }
-      }
-    },
-    mounted() {
-        this.currentTab = localStorage.currentTab || this.tabs[0].key;
-    }
 }
 </script>
 
-<style scoped>
-
+<style>
 .main {
     position: relative;
+    min-height: 100vh;
     padding: 20px 0 50px;
+}
+
+.main > .segment {
+    min-height: 95vh;
 }
 
 .main__menu {
@@ -185,6 +147,7 @@ export default {
     bottom: 20px;
     right: 20px;
     transition: all ease .5s;
+    box-shadow: rgba(0, 0, 0, 0.5) -5px -4px 13px -3px inset !important;
 }
 
 .main__menu-item--active {

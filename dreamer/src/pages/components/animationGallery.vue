@@ -67,6 +67,9 @@ export default {
                     services.sendFile(formData);
                 })
         },
+    },
+    unmounted () {
+        this.store.clearGalleryLinks();
     }
 }
 </script>

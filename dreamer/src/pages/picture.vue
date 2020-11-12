@@ -7,9 +7,10 @@
 </template>
 
 <script>
-import AppPictureDrawer from '/@components/pictureDrawer.vue';
-import AppPictureUpload from '/@components/pictureUpload.vue';
-import AppPictureGallery from '/@components/pictureGallery.vue';
+import { defineComponent } from '/@utils/modifiers';
+const AppPictureDrawer = defineComponent(() => import('/@components/pictureDrawer.vue'));
+const AppPictureUpload = defineComponent(() => import('/@components/pictureUpload.vue'));
+const AppPictureGallery = defineComponent(() => import('/@components/pictureGallery.vue'));
 
 export default {
     name: 'app-picture',

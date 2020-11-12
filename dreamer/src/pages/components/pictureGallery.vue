@@ -102,6 +102,9 @@ export default {
             if (this.isMultiSelect) this.collectImages(target);
             else                    this.drawImage(target);
         },
+    },
+    unmounted () {
+        this.store.clearGalleryLinks();
     }
 }
 </script>
