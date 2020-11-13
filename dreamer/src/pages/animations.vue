@@ -8,9 +8,9 @@
 
 <script>
 import { defineComponent } from '/@utils/modifiers';
-const AppAnimationUpload = defineComponent(() => import('/@components/animationUpload.vue'));
-const AppPictureDrawer = defineComponent(() => import('/@components/pictureDrawer.vue'));
-const AppAnimationGallery = defineComponent(() => import('/@components/animationGallery.vue'));
+import AppAnimationUpload from '/@components/animationUpload.vue';
+import AppPictureDrawer from '/@components/pictureDrawer.vue';
+import AppAnimationGallery from '/@components/animationGallery.vue';
 
 export default {
     name: 'app-animations',
