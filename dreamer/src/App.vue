@@ -30,9 +30,15 @@
 </template>
 
 <script>
-import { defineComponent } from '/@utils/modifiers';
 import store from '/@store/index';
 import services from '/@utils/services';
+
+import AppPicture from '/@pages/picture.vue';
+import AppText from '/@pages/text.vue';
+import AppAnimation from '/@pages/animations.vue';
+import AppEffects from '/@pages/effects.vue';
+import AppGames from '/@pages/games.vue';
+import AppSettings from '/@pages/settings.vue';
 
 export default {
     name: 'App',
@@ -46,37 +52,37 @@ export default {
                 'Picture': {
                     label: 'Picture',
                     icon: 'image',
-                    component: defineComponent(() => import('/@pages/picture.vue')),
+                    component: AppPicture,
                     color: 'red'
                 },
                 'Text/Clock': {
                     label: 'Text/Clock',
                     icon: 'keyboard outline',
-                    component: defineComponent(() => import('/@pages/text.vue')),
+                    component: AppText,
                     color: 'green'
                 },
                 'Animations': {
                     label: 'Animations',
                     icon: 'play',
-                    component: defineComponent(() => import('/@pages/animations.vue')),
+                    component: AppAnimation,
                     color: 'teal'
                 },
                 'Effects for picture': {
                     label: 'Effects for picture',
                     icon: 'film',
-                    component: defineComponent(() => import('/@pages/effects.vue')),
+                    component: AppEffects,
                     color: 'blue'
                 },
                 'Games': {
                     label: 'Games',
                     icon: 'chess',
-                    component: defineComponent(() => import('/@pages/games.vue')),
+                    component: AppGames,
                     color: 'yellow'
                 },
                 'Settings': {
                     label: 'Settings',
                     icon: 'cogs',
-                    component: defineComponent(() => import('/@pages/settings.vue')),
+                    component: AppSettings,
                     color: 'orange'
                 },
             },
