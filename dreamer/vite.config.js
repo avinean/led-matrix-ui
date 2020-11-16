@@ -13,6 +13,10 @@ const aliases = {
 
 module.exports = {
     outDir: '../data/',
+    rollupOutputOptions: {
+        entryFileNames: `[name].js`,
+        chunkFileNames: `[name].js`,
+    },
     resolvers: [
         {
             requestToFile: publicPath => {

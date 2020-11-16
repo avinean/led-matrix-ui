@@ -34,13 +34,6 @@ import { defineComponent } from '/@utils/modifiers';
 import store from '/@store/index';
 import services from '/@utils/services';
 
-import A from '/@pages/picture.vue'
-import B from '/@pages/text.vue'
-import C from '/@pages/animations.vue'
-import D from '/@pages/effects.vue'
-import E from '/@pages/games.vue'
-import F from '/@pages/settings.vue'
-
 export default {
     name: 'App',
     provide: {
@@ -53,37 +46,37 @@ export default {
                 'Picture': {
                     label: 'Picture',
                     icon: 'image',
-                    component: A,
+                    component: defineComponent(() => import('/@pages/picture.vue')),
                     color: 'red'
                 },
                 'Text/Clock': {
                     label: 'Text/Clock',
                     icon: 'keyboard outline',
-                    component: B,
+                    component: defineComponent(() => import('/@pages/text.vue')),
                     color: 'green'
                 },
                 'Animations': {
                     label: 'Animations',
                     icon: 'play',
-                    component: C,
+                    component: defineComponent(() => import('/@pages/animations.vue')),
                     color: 'teal'
                 },
                 'Effects for picture': {
                     label: 'Effects for picture',
                     icon: 'film',
-                    component: D,
+                    component: defineComponent(() => import('/@pages/effects.vue')),
                     color: 'blue'
                 },
                 'Games': {
                     label: 'Games',
                     icon: 'chess',
-                    component: E,
+                    component: defineComponent(() => import('/@pages/games.vue')),
                     color: 'yellow'
                 },
                 'Settings': {
                     label: 'Settings',
                     icon: 'cogs',
-                    component: F,
+                    component: defineComponent(() => import('/@pages/settings.vue')),
                     color: 'orange'
                 },
             },

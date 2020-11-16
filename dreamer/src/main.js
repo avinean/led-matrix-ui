@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
 import { defineComponent } from '/@utils/modifiers';
-import App from './App.vue'
 
-createApp(App).mount('#app')
+createApp(defineComponent(() => import('./App.vue'))).mount('#app')
