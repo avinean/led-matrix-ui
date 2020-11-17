@@ -966,73 +966,35 @@ void ShowFrame() {
 //  ShowMenuValues();
 }
 
-void ShowAll(uint16_t count) {
-  for(uint16_t i = 0; i < count; i++) {
-    MirroredNoise();
-    ShowFrame();
-  }  
 
-  for(uint16_t i = 0; i < count; i++) {
-    RedClouds();
-    ShowFrame();
+
+
+void DrawOneFrame( byte startHue8, int8_t yHueDelta8, int8_t xHueDelta8)
+{
+  byte lineStartHue = startHue8;
+  for( byte y = 0; y < MX_HEIGHT; y++) {
+    lineStartHue += yHueDelta8;
+    byte pixelHue = lineStartHue;      
+    for( byte x = 0; x < MX_WIDTH; x++) {
+      pixelHue += xHueDelta8;
+      leds[ XY(x, y)]  = CHSV( pixelHue, 255, 255);
+    }
   }
-
-  for(uint16_t i = 0; i < count; i++) {
-    Lavalamp1();
-    ShowFrame();
-  }
-
-  for(uint16_t i = 0; i < count; i++) {
-    Lavalamp2();
-    ShowFrame();
-  }
-
-  for(uint16_t i = 0; i < count; i++) {
-    Lavalamp3();
-    ShowFrame();
-  }
-
-
-  for(uint16_t i = 0; i < count; i++) {
-    Lavalamp4();
-    ShowFrame();
-  }
-
-  for(uint16_t i = 0; i < count; i++) {
-    Lavalamp5();
-    ShowFrame();
-  }
-
-  for(uint16_t i = 0; i < count; i++) {
-    Constrained1();
-    ShowFrame();
-  }
-
-  for(uint16_t i = 0; i < count; i++) {
-    RelativeMotion1();
-    ShowFrame();
-  }
-
-  for(uint16_t i = 0; i < count; i++) {
-    Water();
-    ShowFrame();
-  }
-
-  for(uint16_t i = 0; i < count; i++) {
-    Bubbles1();
-    ShowFrame();
-  }
-  
-  for(uint16_t i = 0; i < count; i++) {
-    TripleMotion();
-    ShowFrame();
-  }
-
-
 }
 
-
-
+void RotatingRainbow() {
+  Serial.println("RotatingRainbow");
+  uint32_t ms = millis();
+  int32_t yHueDelta32 = ((int32_t)cos16( ms * (27/1) ) * (350 / MX_WIDTH));
+  int32_t xHueDelta32 = ((int32_t)cos16( ms * (39/1) ) * (310 / MX_HEIGHT));
+  DrawOneFrame( ms / 65536, yHueDelta32 / 32768, xHueDelta32 / 32768);
+  if( ms < 5000 ) {
+    FastLED.setBrightness( scale8( BRIGHTNESS, (ms * 256) / 5000));
+  } else {
+    FastLED.setBrightness(BRIGHTNESS);
+  }
+  FastLED.show();
+}
 
 void setupEffects() {
   // switch dithering off to avoid flicking at low fps
@@ -1047,77 +1009,60 @@ void setupEffects() {
 }
 
 
-void effectsLoop() {
-
-  /*
-  // Use that when having an input device
-   ReadButtons();
-   RunAnimationDependingOnPgm();
-   ColorCorrection();
-   ShowFrame();
-   */
-
-  // use that to see all
-  // the number names the frames per animation
-  ShowAll(500);
-
-  /*
-  // use that to run a single animation
-   TripleMotion();
-   ShowFrame();
-   */
-} 
 
 void RunAnimationDependingOnPgm() {
-  switch (_EFFECT_ID) {              
-
-  case 0:
-    MirroredNoise();     
-    break;
-
-  case 1:
-    RedClouds();     
-    break;
-
-  case 2:
-    Lavalamp1();     
-    break;
-
-  case 3:
-    Lavalamp2();     
-    break;
-
-  case 4:
-    Lavalamp3();     
-    break;
-
-  case 5:
-    Lavalamp4();     
-    break;
-
-  case 6:
-    Lavalamp5();     
-    break;
-
-  case 7:
-    Constrained1();     
-    break;
-
-  case 8:
-    RelativeMotion1();     
-    break;
-
-  case 9:
-    Water();     
-    break;
-
-  case 10:
-    Bubbles1();     
-    break;
-    
-  case 11:
-    TripleMotion();     
-    break;  
+  switch (_EFFECT_ID) {
+    case 0:
+      MirroredNoise();     
+      break;
+  
+    case 1:
+      RedClouds();     
+      break;
+  
+    case 2:
+      Lavalamp1();     
+      break;
+  
+    case 3:
+      Lavalamp2();     
+      break;
+  
+    case 4:
+      Lavalamp3();     
+      break;
+  
+    case 5:
+      Lavalamp4();     
+      break;
+  
+    case 6:
+      Lavalamp5();     
+      break;
+  
+    case 7:
+      Constrained1();     
+      break;
+  
+    case 8:
+      RelativeMotion1();     
+      break;
+  
+    case 9:
+      Water();     
+      break;
+  
+    case 10:
+      Bubbles1();     
+      break;
+      
+    case 11:
+      TripleMotion();     
+      break;  
+        
+    case 12:
+      RotatingRainbow();
+      break;
   }
 }
 

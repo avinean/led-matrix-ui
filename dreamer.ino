@@ -22,13 +22,26 @@
 
 
 
-void doOnFileFoundCallbackWrapper(const char * file){
+void doOnGifFileFoundCallbackWrapper(const char * file){
   Serial.print("  FILE: ");
   Serial.println(file);
   String d = String(file); //String(dir) + (String(dir).endsWith("/") ? "" : "/") + String(file);  
   Serial.printf("Str file: %s", d);
   File f = SPIFFS.open(d, "r");
   playGif(&f);
+}
+
+void doOnJpgFileFoundCallbackWrapper(const char * file){
+//  Serial.print("  FILE: ");
+//  Serial.println(file);
+//  String d = String(file); //String(dir) + (String(dir).endsWith("/") ? "" : "/") + String(file);  
+//  Serial.printf("Str file: %s", d);
+//  File f = SPIFFS.open(d, "r");
+//  playGif(&f);
+  matrix->clear();
+  drawJpeg(file, 0 , 0);     // 240 x 320 image
+  delay(__SPEED__);
+  matrix->show();
 }
 
 void loop() {
@@ -47,7 +60,6 @@ void loop() {
       break;
     };
     case __MODE_CANVAS:{
-//      fillCanvas(bitmap);
       display_panOrBounceBitmap(&drawTaskBitmapInfo);
       FastLED.show();
       break;
@@ -63,12 +75,15 @@ void loop() {
       break;
     };
     case __MODE_GIF_PLAY:{      
-//      RunAnimationDependingOnPgm();
-      findFilesInDir(SPIFFS, __GIFS_FOLDER.c_str(), ".gif", 3, doOnFileFoundCallbackWrapper);     
+      findFilesInDir(SPIFFS, __GIFS_FOLDER.c_str(), ".gif", 3, doOnGifFileFoundCallbackWrapper);     
       FastLED.show();
       break;
     };
-    case __MODE_JPG_PLAY:{
+    case __MODE_JPG_PLAY:{      
+      findFilesInDir(SPIFFS, __JPGS_FOLDER.c_str(), ".jpg", 3, doOnJpgFileFoundCallbackWrapper);
+      FastLED.show();
+      break;
+      /*
       File root = SPIFFS.open(__JPGS_FOLDER);
       while (File file = root.openNextFile()) {
         String strname = file.name();
@@ -86,7 +101,7 @@ void loop() {
         }
       }
 //      FastLED.show();
-      break;
+      break;*/
     };    
     default:{
       FastLED.show();

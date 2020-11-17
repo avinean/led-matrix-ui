@@ -49,7 +49,7 @@ bitmapInfo drawTaskBitmapInfo;
 volatile uint16_t drawTaskBitmapBuffer[NUM_LEDS];
 
 
-//const String CONFIG_IDF_TARGET = "esp32";
+const String CONFIG_IDF_TARGET = "esp32";
 
 #include <ESPAsyncWebServer.h>
 // Create AsyncWebServer object on port 80

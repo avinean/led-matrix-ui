@@ -1,3 +1,8 @@
+#ifndef _JPEG_functions_H_
+#define _JPEG_functions_H_
+
+//#define DEBUG 1
+
 /*====================================================================================
   This sketch contains support functions to render the Jpeg images.
 
@@ -204,3 +209,5 @@ void createArray(const char *filename) {
 
 #endif
 //====================================================================================
+
+#endif

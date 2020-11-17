@@ -75,7 +75,7 @@ void setupServer(AsyncWebServer* server){
     StaticJsonDocument<400> data;
   //    JsonObject root = data.to<JsonObject>();
   
-    JsonArray arr = data.to<JsonArray>();//root.createNestedArray("effects");
+    JsonArray arr = data.to<JsonArray>();//root.createNestedArray("effects");        
     arr.add("MirroredNoise");
     arr.add("RedClouds");
     arr.add("Lavalamp1");
@@ -88,6 +88,7 @@ void setupServer(AsyncWebServer* server){
     arr.add("Water");
     arr.add("Bubbles1");
     arr.add("TripleMotion");
+    arr.add("RotatingRainbow");
     
   //    data["width"] = MX_WIDTH;
   //    data["height"] = MX_HEIGHT;
@@ -241,6 +242,7 @@ void setupServer(AsyncWebServer* server){
     arr.add("Water");
     arr.add("Bubbles1");
     arr.add("TripleMotion");
+    arr.add("RotatingRainbow");
     
     String response;
     serializeJson(data, response);
@@ -354,7 +356,7 @@ static void handle_update_progress_cb(AsyncWebServerRequest *request, String fil
   if(final){
     Serial.printf("UploadEnd: %s, %u B\n", filename.c_str(), index+len);
     request->_tempFile.close();
-    listFiles();
+//    listFiles();
   }
 }
 

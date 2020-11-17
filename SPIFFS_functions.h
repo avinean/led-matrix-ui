@@ -211,7 +211,7 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
 
   Serial.println(line);
   Serial.println();
-  delay(1000);
+//  delay(1000);
 }
 #endif
 
