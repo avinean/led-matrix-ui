@@ -19,7 +19,7 @@
 
 #include "g_snake.h"
 
-
+//#include "effects.h"
 
 
 void doOnGifFileFoundCallbackWrapper(const char * file){
@@ -32,14 +32,8 @@ void doOnGifFileFoundCallbackWrapper(const char * file){
 }
 
 void doOnJpgFileFoundCallbackWrapper(const char * file){
-//  Serial.print("  FILE: ");
-//  Serial.println(file);
-//  String d = String(file); //String(dir) + (String(dir).endsWith("/") ? "" : "/") + String(file);  
-//  Serial.printf("Str file: %s", d);
-//  File f = SPIFFS.open(d, "r");
-//  playGif(&f);
   matrix->clear();
-  drawJpeg(file, 0 , 0);     // 240 x 320 image
+  drawJpeg(file, 0 , 0, (uint16_t*)&drawTaskBitmapBuffer);     // 240 x 320 image
   delay(__SPEED__);
   matrix->show();
 }
@@ -83,25 +77,6 @@ void loop() {
       findFilesInDir(SPIFFS, __JPGS_FOLDER.c_str(), ".jpg", 3, doOnJpgFileFoundCallbackWrapper);
       FastLED.show();
       break;
-      /*
-      File root = SPIFFS.open(__JPGS_FOLDER);
-      while (File file = root.openNextFile()) {
-        String strname = file.name();
-        // If it is not a directory and filename ends in .jpg then load it
-        if (!file.isDirectory() && strname.endsWith(".jpg")) {
-          Serial.printf("File: %s\n", strname ); 
-          matrix->clear();
-          drawJpeg(strname.c_str(), 0 , 0);     // 240 x 320 image
-          matrix->show();
-#if DEBUG == 1          
-          Serial.printf("dumpPtr(leds)\n");
-          dumpPtr((const uint8_t*)&leds, NUM_LEDS );
-#endif          
-          delay(1000);
-        }
-      }
-//      FastLED.show();
-      break;*/
     };    
     default:{
       FastLED.show();
@@ -142,8 +117,44 @@ void setup() {
   Serial.println("\r\nInitialisation done.");
   digitalWrite(LED_BUILTIN, HIGH);    // turn the LED off by making the voltage LOW
 
-  __CURRENT_MODE = __MODE_BOOT;
+//  __CURRENT_MODE = __MODE_BOOT;
+//  __MODE_STOP__ = false;
+
+  matrix->clear();
+  drawJpeg("/imgs/hs1.jpg", 0 , 0, NULL);     // 240 x 320 image
+  matrix->show();
+  dumpPtr((const uint8_t*)&leds, BITMAP_SIZE);
+  delay(5000);
+//
+////  matrix->clear();
+  drawJpeg("/imgs/hs1.jpg", 0 , 0, (uint16_t*)&drawTaskBitmapBuffer);     // 240 x 320 image
+//  dumpPtr((const uint8_t*)&drawTaskBitmapBuffer, drawTaskBitmapInfo.width * drawTaskBitmapInfo.height * 2 );
+//  matrix->show();  
+//  delay(5000);  
+
+//  uint16_t _didx = 0;
+//  for ( uint16_t _idx = 0; _idx < NUM_LEDS; _idx++ ){
+//    drawTaskBitmapBuffer[_idx] = matrix->Color(data[_didx++], data[_didx++], data[_didx++]);
+//  }
+  matrix->clear();
+//  drawTaskBitmapInfo = (bitmapInfo){ (const short unsigned int*)&drawTaskBitmapBuffer, 8, 8, 0 };
   __MODE_STOP__ = false;
+
+    matrix->clear();
+    matrix->drawRGBBitmap(0, 0, (const short unsigned int*)&drawTaskBitmapBuffer, drawTaskBitmapInfo.width, drawTaskBitmapInfo.height);  
+    matrix->show();
+//    dumpPtr((const uint8_t*)&leds, BITMAP_SIZE);  
+  for(;;);
+//  {
+//  matrix->clear();
+//    display_panOrBounceBitmap(&drawTaskBitmapInfo);
+//    
+////      matrix->drawRGBBitmap(2, 2, (const short unsigned int*)&drawTaskBitmapBuffer, 16, 16);  
+//      matrix->show();
+////      dumpPtr((const uint8_t*)&leds, BITMAP_SIZE);
+//  delay(__SPEED__);
+////  matrix->show();
+//  }
 }
 
 // vim:sts=4:sw=4

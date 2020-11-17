@@ -16,11 +16,11 @@ const int LED_BUILTIN = 2;
 String __GIFS_FOLDER = "/gifs";
 String __JPGS_FOLDER = "/imgs";
 
-uint16_t __SPEED__ = 150; // скорость анимаций ( точнее - delay() после отрисовки очередного кадра, или скорость игр в демо режиме (мс)
-bool __MODE_STOP__ = true;
+volatile uint16_t __SPEED__ = 150; // скорость анимаций ( точнее - delay() после отрисовки очередного кадра, или скорость игр в демо режиме (мс)
+volatile bool __MODE_STOP__ = true;
 
 #define USE_SNAKE 1         // игра змейка (0 нет, 1 да)
-boolean loadingFlag = true;        // флаг: выполняется инициализация параметров режима
+volatile boolean loadingFlag = true;        // флаг: выполняется инициализация параметров режима
 
 boolean gamemodeFlag = false;      // флаг: текущий режим - игра
 boolean controlFlag = false;       // флаг: управление игрой перехвачено с кнопок или смартфона
@@ -40,16 +40,16 @@ String _GAME_NAME_;//[GAME_NAME_SIZE];
 
 timerMinim gameTimer(0);                  // Таймер скорости игры (шага выполнения игры)
 
-volatile uint8_t _EFFECT_ID = 0;
+uint8_t _EFFECT_ID = 0;
 
 
 
 bitmapInfo drawTaskBitmapInfo;
 //uint8_t drawTaskBitmapBuffer[BITMAP_SIZE*4];
-volatile uint16_t drawTaskBitmapBuffer[NUM_LEDS];
+uint16_t drawTaskBitmapBuffer[NUM_LEDS];
 
 
-const String CONFIG_IDF_TARGET = "esp32";
+//const String CONFIG_IDF_TARGET = "esp32";
 
 #include <ESPAsyncWebServer.h>
 // Create AsyncWebServer object on port 80
@@ -64,7 +64,7 @@ FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(leds, MX_WIDTH, MX_HEIGHT,
     NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG + 
     NEO_TILE_TOP + NEO_TILE_RIGHT +  NEO_TILE_PROGRESSIVE);
 
-volatile uint8_t _MX_ROTATION = 0;
+uint8_t _MX_ROTATION = 0;
 
 char __BOOT_STR__[100];
     
@@ -79,11 +79,11 @@ char __BOOT_STR__[100];
 #define __MODE_JPG_PLAY 6
 #define __MODE_EFFECTS  7
 #define __MODE_DRAW     8
-volatile unsigned char __CURRENT_MODE = __MODE_CANVAS;//__MODE_TEXT;
+unsigned char __CURRENT_MODE = __MODE_CANVAS;//__MODE_TEXT;
 
 //volatile 
 //String _GAME_NAME_;
-volatile byte _GAME_BUTTONS_ = 4;                  // Управление играми: нажата кнопка: 0 - верх, 1 - право, 2 - низ, 3 - лево, 4 - не нажата
+byte _GAME_BUTTONS_ = 4;                  // Управление играми: нажата кнопка: 0 - верх, 1 - право, 2 - низ, 3 - лево, 4 - не нажата
 
 //volatile 
 String _RUN_TEXT_ = "hello world";

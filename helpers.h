@@ -74,6 +74,12 @@ uint16_t XY( uint8_t x, uint8_t y) {
   return i;
 }
 
+uint16_t XY( uint8_t x, uint8_t y, uint8_t w) {
+  uint16_t i;
+  i = (y * w) + x;
+  return i;
+}
+
 
 uint32_t getPixColorXY ( uint16_t x, uint16_t y ){
   return (uint32_t)leds[ XY(x, y)];

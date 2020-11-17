@@ -3,46 +3,6 @@
 
 #include "globals.h"
 
-// Convert a BGR 4/4/4 bitmap to RGB 5/6/5 used by Adafruit_GFX
-void fixdrawRGBBitmap(int16_t x, int16_t y, const uint16_t *bitmap, int16_t w, int16_t h) {
-  uint16_t RGB_bmp_fixed[w * h];
-  for (uint16_t pixel=0; pixel<w*h; pixel++) {
-    uint8_t r,g,b;
-    uint16_t color = pgm_read_word(bitmap + pixel);
-  
-    //Serial.print(color, HEX);
-    b = (color & 0xF00) >> 8;
-    g = (color & 0x0F0) >> 4;
-    r = color & 0x00F;
-  #if DEBUG == 1  
-    Serial.print(" ");
-    Serial.print(b);
-    Serial.print("/");
-    Serial.print(g);
-    Serial.print("/");
-    Serial.print(r);
-    Serial.print(" -> ");
-  #endif  
-    // expand from 4/4/4 bits per color to 5/6/5
-    b = map(b, 0, 15, 0, 31);
-    g = map(g, 0, 15, 0, 63);
-    r = map(r, 0, 15, 0, 31);
-  #if DEBUG == 1  
-    Serial.print(r);
-    Serial.print("/");
-    Serial.print(g);
-    Serial.print("/");
-    Serial.print(b);
-  #endif  
-    RGB_bmp_fixed[pixel] = (r << 11) + (g << 5) + b;
-#if DEBUG == 1    
-    //Serial.print(" -> ");
-    //Serial.println(RGB_bmp_fixed[pixel], HEX);
-#endif    
-  }
-  matrix->drawRGBBitmap(x, y, RGB_bmp_fixed, w, h);
-}
-
 void display_scrollText_multyline(String txt, const CRGB tcolor, const CRGB bgcolor) {
 
 //  String tmp[2];
@@ -121,7 +81,7 @@ Serial.printf("txt sz: %d,from %d, to %d, cursor %d\n\n", size, _frm, _to, _crsr
 // Scroll within big bitmap so that all if it becomes visible or bounce a small one.
 // If the bitmap is bigger in one dimension and smaller in the other one, it will
 // be both panned and bounced in the appropriate dimensions.
-void display_panOrBounceBitmap(volatile const bitmapInfo* bitmapNfo) {
+void display_panOrBounceBitmap(const bitmapInfo* bitmapNfo) {
   uint8_t bitmapSize = bitmapNfo->width;
   // keep integer math, deal with values 16 times too big
   // start by showing upper left of big bitmap or centering if the display is big
@@ -135,6 +95,8 @@ void display_panOrBounceBitmap(volatile const bitmapInfo* bitmapNfo) {
   int16_t xfdir = -1;
   int16_t yfdir = -1;
 
+  Serial.printf("\ndisplay_panOrBounceBitmap\n: bitmapSize: %d, xf: %d, yf: %d; xfc: %d, yfc: %d; xfdir: %d, yfdir: %d\n", bitmapSize, xf, yf, xfc, yfc, xfdir, yfdir);
+
   for (uint16_t i=1; i<200; i++) {
     if ( ! __MODE_STOP__ ) {
       bool updDir = false;
@@ -144,7 +106,7 @@ void display_panOrBounceBitmap(volatile const bitmapInfo* bitmapNfo) {
       int16_t y = yf >> 4;
     
       matrix->clear();
-      matrix->drawRGBBitmap(x, y, bitmapNfo->bitmap, bitmapSize, bitmapSize);  
+      matrix->drawRGBBitmap(x, y, bitmapNfo->bitmap, bitmapNfo->width, bitmapNfo->height);  
       matrix->show();
        
       // Only pan if the display size is smaller than the pixmap
@@ -183,6 +145,48 @@ void display_panOrBounceBitmap(volatile const bitmapInfo* bitmapNfo) {
       delay(__SPEED__);
     }
   }
+}
+
+
+
+// Convert a BGR 4/4/4 bitmap to RGB 5/6/5 used by Adafruit_GFX
+void fixdrawRGBBitmap(int16_t x, int16_t y, const uint16_t *bitmap, int16_t w, int16_t h) {
+  uint16_t RGB_bmp_fixed[w * h];
+  for (uint16_t pixel=0; pixel<w*h; pixel++) {
+    uint8_t r,g,b;
+    uint16_t color = pgm_read_word(bitmap + pixel);
+  
+    //Serial.print(color, HEX);
+    b = (color & 0xF00) >> 8;
+    g = (color & 0x0F0) >> 4;
+    r = color & 0x00F;
+  #if DEBUG == 1  
+    Serial.print(" ");
+    Serial.print(b);
+    Serial.print("/");
+    Serial.print(g);
+    Serial.print("/");
+    Serial.print(r);
+    Serial.print(" -> ");
+  #endif  
+    // expand from 4/4/4 bits per color to 5/6/5
+    b = map(b, 0, 15, 0, 31);
+    g = map(g, 0, 15, 0, 63);
+    r = map(r, 0, 15, 0, 31);
+  #if DEBUG == 1  
+    Serial.print(r);
+    Serial.print("/");
+    Serial.print(g);
+    Serial.print("/");
+    Serial.print(b);
+  #endif  
+    RGB_bmp_fixed[pixel] = (r << 11) + (g << 5) + b;
+#if DEBUG == 1    
+    //Serial.print(" -> ");
+    //Serial.println(RGB_bmp_fixed[pixel], HEX);
+#endif    
+  }
+  matrix->drawRGBBitmap(x, y, RGB_bmp_fixed, w, h);
 }
 
 
