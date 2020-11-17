@@ -17,9 +17,11 @@ void jpegRender(int xpos, int ypos);
 //====================================================================================
 void drawJpeg(const char *filename, int xpos, int ypos) {
 
+#if DEBUG == 1
   Serial.println("===========================");
   Serial.print("Drawing file: "); Serial.println(filename);
   Serial.println("===========================");
+#endif  
 
   // Open the named file (the Jpeg decoder library will close it after rendering image)
   fs::File jpegFile = SPIFFS.open( filename, "r");    // File handle reference for SPIFFS
@@ -39,8 +41,10 @@ void drawJpeg(const char *filename, int xpos, int ypos) {
   boolean decoded = JpegDec.decodeFsFile(filename);  // or pass the filename (leading / distinguishes SPIFFS files)
 
   if (decoded) {
+#if DEBUG == 1    
     // print information about the image to the serial port
     jpegInfo();
+#endif    
 
     // render the image onto the screen at given coordinates
     jpegRender(xpos, ypos);
@@ -124,10 +128,11 @@ void jpegRender(int xpos, int ypos) {
   // calculate how long it took to draw the image
   drawTime = millis() - drawTime; // Calculate the time it took
 
+#if DEBUG == 1
   // print the results to the serial port
   Serial.print  ("Total render time was    : "); Serial.print(drawTime); Serial.println(" ms");
   Serial.println("=====================================");
-
+#endif
 }
 
 //====================================================================================
@@ -150,10 +155,12 @@ void jpegInfo() {
   Serial.println("");
 }
 
+#if DEBUG == 1
 //====================================================================================
 //   Open a Jpeg file and send it to the Serial port in a C array compatible format
 //====================================================================================
 void createArray(const char *filename) {
+  
 
   // Open the named file
   fs::File jpgFile = SPIFFS.open( filename, "r");    // File handle reference for SPIFFS
@@ -194,4 +201,6 @@ void createArray(const char *filename) {
   Serial.println("};\r\n");
   jpgFile.close();
 }
+
+#endif
 //====================================================================================

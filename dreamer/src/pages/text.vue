@@ -123,6 +123,7 @@
 </template>
 
 <script>
+import { markRaw } from 'vue';
 import services from '/@utils/services';
 import Picker from 'vanilla-picker';
 
@@ -144,14 +145,14 @@ export default {
                 text: 0,
                 clock: 1,
             },
-            speedConfig: {
+            speedConfig: markRaw({
                 min: 1,
                 max: 255,
                 start: 126,
                 onChange: (value) => {
                     this.textConfig.speed = value;
                 },
-            },
+            }),
             textConfig: {
                 string: '',
                 speed: 0,

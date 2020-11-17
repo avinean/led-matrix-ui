@@ -48,6 +48,8 @@ class GifPlayer {
 #define ERROR_UNKNOWNCONTROLEXT 4
 #define ERROR_FINISHED       	5
 
+#define REQUEST_FINISHED         6
+
   private:
 
 #define GIFHDRTAGNORM   "GIF87a"  // tag in valid GIF file

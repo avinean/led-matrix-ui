@@ -1,3 +1,6 @@
+#ifndef _SPIFFS_FUNCTIONS_H_
+#define _SPIFFS_FUNCTIONS_H_
+
 /*====================================================================================
   This sketch contains support functions for the ESP6266 SPIFFS filing system
 
@@ -137,27 +140,14 @@ void findFilesInDir(fs::FS &fs, const char * dirname, const char * fileExt, uint
     if (file.isDirectory()) {
       Serial.print("DIR : ");
       String fileName = file.name();
-      Serial.print(fileName);
+      Serial.println(fileName);
       if (levels) {
         findFilesInDir(fs, file.name(), fileExt, levels - 1, callback);
       }
     } else {
       if ( String(file.name()).endsWith( fileExt ) ){
-//        Serial.print("  " + String(file.name()));
-        callback(root.name(), file.name());
-//        String path = String(root.name());
-//        String fn = String(file.name());
-//        char s[path.length()+fn.length()+1];
-//        sprintf(s, "%s/%s", path, fn);
-//        String fileName = String(s);//root.name() + "/" + file.name();
-//        res.Add(fileName);
-//        Serial.print("  " + fileName);
-//        int spaces = 20 - fileName.length(); // Tabulate nicely
-//        while (spaces--) Serial.print(" ");
-//        String fileSize = (String) file.size();
-//        spaces = 10 - fileSize.length(); // Tabulate nicely
-//        while (spaces--) Serial.print(" ");
-//        Serial.println(fileSize + " bytes");
+        Serial.println("  " + String(file.name()));
+        callback(file.name());
       }
     }
 
@@ -166,9 +156,16 @@ void findFilesInDir(fs::FS &fs, const char * dirname, const char * fileExt, uint
 //  return res;
 }
 
+void printSPIFFSInfo(){
+  int tBytes = SPIFFS.totalBytes();
+  int uBytes = SPIFFS.usedBytes();
+  Serial.printf("SPIFFS Info:\nTotal Bytes: %d\nUsed Bytes: %d\nFree Bytes: %d\n", tBytes, uBytes, ( tBytes - uBytes ) );
+}
+
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
 
   Serial.println();
+  printSPIFFSInfo();
   Serial.println("SPIFFS files found:");
 
   Serial.printf("Listing directory: %s\n", "/");
@@ -216,4 +213,6 @@ void listDir(fs::FS &fs, const char * dirname, uint8_t levels) {
   Serial.println();
   delay(1000);
 }
+#endif
+
 #endif

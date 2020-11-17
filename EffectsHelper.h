@@ -32,6 +32,7 @@
 
 //#include<SmartMatrix.h>
 #include "globals.h"
+#include "helpers.h"
 
 // the size of your matrix
 
@@ -103,17 +104,7 @@ Helpfull functions to keep the actual animation code short.
  */
 
 
-// Translate the x/y coordinates into the right index in the
-// framebuffer.
-// The Smartmatrix has a simple line by line layout, no 
-// serpentines. It safed 2 fps to keep this function short.
-// The function is called (sometimes) over 200 000 times per second!
 
-uint16_t XY( uint8_t x, uint8_t y) {
-  uint16_t i;
-  i = (y * MX_WIDTH) + x;
-  return i;
-}
 
 
 // Fill the x/y array with 16-bit noise values 
@@ -453,94 +444,6 @@ void SerialWriteNoiseValue(byte layer) {
 }
 
 
-//
-//void ReadButtons () {
-//  byte NUM_PGM = 11;
-//  byte DEBOUNCE_DELAY = 100;
-//  byte STEP_WIDTH = 64;
-//  button1 = digitalRead(17);
-//  button2 = digitalRead(18);
-//  button3 = digitalRead(19);
-//
-//  // if any button pressed
-//  if (button1 == LOW || button2 == LOW || button3 == LOW) {
-//
-//    if (button1 == LOW) { // change (increment) mode
-//      mode ++;
-//      delay(DEBOUNCE_DELAY);
-//      // 0 pgm
-//      // 1 spd
-//      // 2 bri
-//      // 3 red
-//      // 4 green
-//      // 5 blue
-//      // 6 reset
-//      if (mode == 7) mode = 0;
-//    }
-//
-//    if (mode == 0 && button2 == LOW) { // pgm up
-//      pgm++;
-//      delay(DEBOUNCE_DELAY);
-//      if (pgm == NUM_PGM+1) pgm = 0;
-//    }
-//    if (mode == 0 && button3 == LOW) { // pgm down
-//      pgm--;
-//      delay(DEBOUNCE_DELAY);
-//      if (pgm == 255) pgm = NUM_PGM;
-//    }
-//    if (mode == 1 && button2 == LOW) { // spd up
-//      spd++;
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 1 && button3 == LOW) { // spd down
-//      spd--;
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 2 && button2 == LOW) { // bri up
-//      brightness = brightness + STEP_WIDTH;
-//      LEDS.setBrightness(brightness);
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 2 && button3 == LOW) { // bri down
-//      brightness = brightness - STEP_WIDTH;
-//      LEDS.setBrightness(brightness);
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 3 && button2 == LOW) { // red up
-//      red_level = red_level + STEP_WIDTH;
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 3 && button3 == LOW) { // red down
-//      red_level = red_level - STEP_WIDTH;
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 4 && button2 == LOW) { // green up
-//      green_level = green_level + STEP_WIDTH;
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 4 && button3 == LOW) { // green down
-//      green_level = green_level - STEP_WIDTH;
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 5 && button2 == LOW) { // blue up
-//      blue_level = blue_level + STEP_WIDTH;
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 5 && button3 == LOW) { // blue down
-//      blue_level = blue_level - STEP_WIDTH;
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 6 && button2 == LOW) { // reset
-//      BasicVariablesSetup();
-//      delay(DEBOUNCE_DELAY);
-//    }
-//    if (mode == 6 && button3 == LOW) { // reset
-//      BasicVariablesSetup();
-//      delay(DEBOUNCE_DELAY);
-//    }
-//  }
-//}
-
 void ShowMenuValues() {
   // serial print all relevant data
   Serial.print("Mode ");
@@ -631,14 +534,18 @@ void MirroredNoise() {
 
   for(int i = 0; i < MX_WIDTH; i++) {
     for(int j = 0; j < MX_HEIGHT; j++) {
-
-      // map the noise values down
-      uint16_t index = ( noise[0][i][j] + noise[0][MX_WIDTH - 1 - i][j] ) / 2;
-      uint16_t   bri = 255;
-      // assign a color from the HSV space
-      CRGB color = ColorFromPalette( currentPalette, index, bri);
-
-      leds[XY(i,j)] = color;
+      if ( ! __MODE_STOP__ ) {
+        // map the noise values down
+        uint16_t index = ( noise[0][i][j] + noise[0][MX_WIDTH - 1 - i][j] ) / 2;
+        uint16_t   bri = 255;
+        // assign a color from the HSV space
+        CRGB color = ColorFromPalette( currentPalette, index, bri);
+  
+        leds[XY(i,j)] = color;
+      } else
+        break;
+      if ( __MODE_STOP__ )
+        break;
     }
   }
 }
@@ -669,17 +576,20 @@ void RedClouds() {
   FillNoise(0);
 
   for(int i = 0; i < MX_WIDTH; i++) {
-    for(int j = 0; j < MX_HEIGHT; j++) {
-
-      // map the noise values down to a byte range
-      uint16_t index = noise[0][i][j];
-      uint16_t   bri = 255;
-      // assign a color depending on the actual palette
-      CRGB color = ColorFromPalette( currentPalette, index + colorshift, bri);
-
-      // draw only the part lower than the threshold
-      if (index < 128) { 
-        leds[XY(i,j)] = color;
+    if ( ! __MODE_STOP__ ) {
+      for(int j = 0; j < MX_HEIGHT; j++) {
+        if ( ! __MODE_STOP__ ) {
+          // map the noise values down to a byte range
+          uint16_t index = noise[0][i][j];
+          uint16_t   bri = 255;
+          // assign a color depending on the actual palette
+          CRGB color = ColorFromPalette( currentPalette, index + colorshift, bri);
+    
+          // draw only the part lower than the threshold
+          if (index < 128) { 
+            leds[XY(i,j)] = color;
+          }
+        }
       }
     }
   }
@@ -1208,18 +1118,6 @@ void RunAnimationDependingOnPgm() {
   case 11:
     TripleMotion();     
     break;  
-  }
-}
-
-void effectsTaskCode( void * pvParameters ){
-  matrix->clear();
-  matrix->show();
-    
-  for(;;){
-    yield();
-//    display_panOrBounceBitmap(&drawTaskBitmapInfo);
-    RunAnimationDependingOnPgm();
-    vTaskDelay( pdMS_TO_TICKS( 50 ) );
   }
 }
 

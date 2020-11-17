@@ -7,6 +7,7 @@
 </template>
 
 <script>
+import { defineComponent } from '/@utils/modifiers';
 import AppPictureDrawer from '/@components/pictureDrawer.vue';
 import AppPictureUpload from '/@components/pictureUpload.vue';
 import AppPictureGallery from '/@components/pictureGallery.vue';

@@ -14,8 +14,69 @@
 
 #include "GifPlayer.h"
 
-void convertRG565toCRGB(){
-  
+#include "Morse.h"
+
+// string: string to parse
+// c: delimiter
+// returns number of items parsed
+String strings_for_split[10];
+
+int getCharCountInString(String string, char del){  
+}
+
+int split(String string, char del){
+  Serial.printf("split(\"%s\", '%c'):\n", string, del);
+  String data = "";
+  int bufferIndex = 0;
+
+  for (int i = 0; i < string.length(); ++i){
+    char c = string[i];
+    
+    if (c != del){
+      data += c;
+    } else {
+      data += '\0';
+      Serial.printf("buf[%d]: %s\n", bufferIndex, data);
+      strings_for_split[bufferIndex++] = data;
+      data = "";
+    }
+  }
+  if (string.length() > string.lastIndexOf(del)){
+    data += '\0';
+    Serial.printf("buf[%d]: %s\n", bufferIndex, data);
+    strings_for_split[bufferIndex++] = data;    
+  }
+  return bufferIndex;
+}
+
+Morse morse(LED_BUILTIN, 2000 / portTICK_PERIOD_MS, 204 ); // 204 = 0b11001100
+
+/* this function will be invoked when additionalTask was created */
+void blinkingTask( void * parameter ){
+/* loop forever */
+  for(;;){
+//    Serial.println("this is another Task");
+//    delay(1000);
+    morse.patternNext();
+    vTaskDelay( morse.getDelay() / portTICK_PERIOD_MS );
+  }
+}
+
+// Translate the x/y coordinates into the right index in the
+// framebuffer.
+// The Smartmatrix has a simple line by line layout, no 
+// serpentines. It safed 2 fps to keep this function short.
+// The function is called (sometimes) over 200 000 times per second!
+
+uint16_t XY( uint8_t x, uint8_t y) {
+  uint16_t i;
+  i = (y * MX_WIDTH) + x;
+  return i;
+}
+
+
+uint32_t getPixColorXY ( uint16_t x, uint16_t y ){
+  return (uint32_t)leds[ XY(x, y)];
 }
 
 void dumpPtr(const uint8_t* fdst, uint16_t fsize){
@@ -27,32 +88,32 @@ void dumpPtr(const uint8_t* fdst, uint16_t fsize){
 }
 
 
-void playGif(const char * dir, const char * fileName){
-//void playGif(File* file){
+//void playGif(const char * dir, const char * fileName){
+void playGif(File* file){
 //  File root = SPIFFS.open(dir);
-  File file = SPIFFS.open(String(dir)+String("/") + String(fileName), "r");
-  if ( file && String(file.name()).endsWith(".gif") ){
-    Serial.print("  FILE: ");
-    Serial.print(file.name());
-    Serial.print("\tSIZE: ");
-    Serial.println(file.size());
-  
-//    String fileName = file->name();
+//  File file = SPIFFS.open(String(dir)+String("/") + String(fileName), "r");
+  if ( (*file) && String(file->name()).endsWith(".gif") ){
     Serial.println("!!GIF!!");  
+    Serial.print("  FILE: ");
+    Serial.print(file->name());
+    Serial.print("\tSIZE: ");
+    Serial.println(file->size());
+  
+//    String fileName = file->name();    
     Serial.print("Reading ");
 //    Serial.println(fileName);
   
-    File imageFile = SPIFFS.open(fileName, "r");
-    if (!imageFile) {
-        Serial.println("Failed to open");
-        return;
-    }
+//    File imageFile = SPIFFS.open(fileName, "r");
+//    if (!imageFile) {
+//        Serial.println("Failed to open");
+//        return;
+//    }
     
-    gifPlayer.setFile(imageFile);
+    gifPlayer.setFile(*file);
   
     for (uint8_t c=0; c<10; c++) {
       if (!gifPlayer.parseGifHeader()) {
-        imageFile.close();
+        file->close();
         Serial.println("No gif header");
         return;
       }
@@ -63,41 +124,19 @@ void playGif(const char * dir, const char * fileName){
       Serial.println("Processing gif");
       int result;
       do {
-//                  gifPlayer.drawFrame();
         result = gifPlayer.drawFrame();
         matrix->show();
-        delay(50);
+        delay(10);
       } while (result != ERROR_FINISHED);
-      imageFile.seek(0);
+      file->seek(0);
     }
 
     Serial.println("Gif finished");
-    imageFile.close();
-    delay(1000);
+    file->close();
+    delay(100);
   }
 
 }
-
-//uint16_t rgb888torgb565(uint8_t *rgb888Pixel)
-//{
-//    uint8_t red   = rgb888Pixel[0];
-//    uint8_t green = rgb888Pixel[1];
-//    uint8_t blue  = rgb888Pixel[2];
-//
-//    uint16_t b = (blue >> 3) & 0x1f;
-//    uint16_t g = ((green >> 2) & 0x3f) << 5;
-//    uint16_t r = ((red >> 3) & 0x1f) << 11;
-//
-//    return (uint16_t) (r | g | b);
-//}
-
-
-//uint16_t rgb888toRgb565(CRGB* col){
-//  return (
-//    ( (uint8_t)( (float) col->r * 31.0f / 255.0f + 0.5f ) && 0x1f ) << 11 +
-//    ( (uint8_t)( (float) col->g * 63.0f / 255.0f + 0.5f ) && 0x3f ) << 5 +
-//    ( (uint8_t)( (float) col->b * 31.0f / 255.0f + 0.5f ) && 0x1f ) );
-//}
 
 void dumpSystemInfo(){
   esp_chip_info_t chip_info;

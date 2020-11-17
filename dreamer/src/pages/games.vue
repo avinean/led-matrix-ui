@@ -139,3 +139,33 @@ export default {
     }
 }
 </script>
+
+<style>
+
+
+.game__controls {
+    text-align: center;
+}
+
+.game__controls > div {
+    display: flex;
+    justify-content: center;
+}
+
+.game__controls button.left {
+    margin-right: 45px !important;
+}
+
+.game__controls button.right {
+    margin-left: 45px !important;
+}
+
+.game__controls button i {
+    font-size: 90px;
+    height: 90px;
+    width: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+</style>

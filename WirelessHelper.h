@@ -13,9 +13,6 @@
 #include "AsyncJson.h"
 #include "ArduinoJson.h"
 
-const char* host = "esp32";
-const char* ssid = "Keenetic-1933";
-const char* password = "sMTVCwBP";
 
 // Create AsyncWebServer object on port 80
 //AsyncWebServer server(80);
@@ -43,7 +40,8 @@ void setupWifiConnection(){
       delay(1000);
     }
   }
-  Serial.println("mDNS responder started");
+  Serial.printf("\nmDNS responder started: http://%s.local\n", host);
+  sprintf(__BOOT_STR__,"%d.%d.%d.%d;%s", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3], ssid );
 }
 
 #endif
