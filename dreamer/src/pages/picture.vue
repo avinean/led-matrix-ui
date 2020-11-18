@@ -1,23 +1,23 @@
 <template>
     <div>
         <app-picture-drawer />
-        <app-picture-upload />
-        <app-picture-gallery />
+        <app-image-upload />
+        <app-image-gallery />
     </div>
 </template>
 
 <script>
 import { defineComponent } from '/@utils/modifiers';
 import AppPictureDrawer from '/@components/pictureDrawer.vue';
-import AppPictureUpload from '/@components/pictureUpload.vue';
-import AppPictureGallery from '/@components/pictureGallery.vue';
+import AppImageUpload from '/@components/imageUpload.vue';
+import AppImageGallery from '/@components/imageGallery.vue';
 
 export default {
     name: 'app-picture',
     components: {
         AppPictureDrawer,
-        AppPictureUpload,
-        AppPictureGallery
+        AppImageUpload,
+        AppImageGallery
     }
 }
 </script>

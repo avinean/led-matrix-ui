@@ -52,15 +52,6 @@
 
                 <div ref="colorPicker"></div>
 
-                <div class="mb-10">
-                    <button
-                        class="ui right labeled icon button green"
-                        @click="rotate"
-                    >
-                        <i class="sync icon"></i>
-                        Rotate
-                    </button>
-                </div>
             </div>
             <div class="content center" v-show="selectedEffect === effectsList.text">
                 <div class="mb-10">
@@ -77,9 +68,11 @@
                     </div>
                 </div>
                 <div class="mb-10">
-                    <div class="ui segment" style="display: flex;">
-                        {{ speedConfig.min }} <div class="ui range" id="tmp"></div> {{ speedConfig.max }}
-                    </div>
+                    <app-range
+                        :min="1"
+                        :max="255"
+                        v-model="textConfig.speed"
+                    ></app-range>
                 </div>
             </div>
             <div class="content form" v-show="selectedEffect === effectsList.clock">
@@ -123,12 +116,15 @@
 </template>
 
 <script>
-import { markRaw } from 'vue';
 import services from '/@utils/services';
 import Picker from 'vanilla-picker';
+import AppRange from '/@components/range.vue';
 
 export default {
     name: 'app-text',
+    components: {
+        AppRange
+    },
     data() {
         return {
             pickerMode: 0,
@@ -145,14 +141,6 @@ export default {
                 text: 0,
                 clock: 1,
             },
-            speedConfig: markRaw({
-                min: 1,
-                max: 255,
-                start: 126,
-                onChange: (value) => {
-                    this.textConfig.speed = value;
-                },
-            }),
             textConfig: {
                 string: '',
                 speed: 0,
@@ -209,13 +197,9 @@ export default {
                 });
             }
         },
-        rotate() {
-            services.rotate();
-        }
     },
     mounted() {
         $('.ui.dropdown').dropdown();
-        $('.ui.range').range(this.speedConfig);
         $('.ui.radio.checkbox').checkbox();
         $('.ui.checkbox').checkbox();
 

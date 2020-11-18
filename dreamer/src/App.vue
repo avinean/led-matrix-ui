@@ -1,7 +1,12 @@
 <template>
     <div v-if="inited">
         <div class="ui container main">
-            <component :is="currentPage.component" />
+
+            <app-toolbar
+                v-show="currentPage && !currentPage.noToolbar"
+            ></app-toolbar>
+
+            <component :is="currentPage && currentPage.component" />
 
             <div
                 class="main__menu"
@@ -33,6 +38,7 @@
 import store from '/@store/index';
 import services from '/@utils/services';
 
+import AppToolbar from '/@components/toolbar.vue';
 import AppPicture from '/@pages/picture.vue';
 import AppText from '/@pages/text.vue';
 import AppAnimation from '/@pages/animations.vue';
@@ -42,6 +48,9 @@ import AppSettings from '/@pages/settings.vue';
 
 export default {
     name: 'App',
+    components: {
+        AppToolbar
+    },
     provide: {
         store,
     },
@@ -61,12 +70,12 @@ export default {
                     component: AppText,
                     color: 'green'
                 },
-                'Animations': {
-                    label: 'Animations',
-                    icon: 'play',
-                    component: AppAnimation,
-                    color: 'teal'
-                },
+                // 'Animations': {
+                //     label: 'Animations',
+                //     icon: 'play',
+                //     component: AppAnimation,
+                //     color: 'teal'
+                // },
                 'Effects for picture': {
                     label: 'Effects for picture',
                     icon: 'film',
@@ -83,7 +92,8 @@ export default {
                     label: 'Settings',
                     icon: 'cogs',
                     component: AppSettings,
-                    color: 'orange'
+                    color: 'orange',
+                    noToolbar: true
                 },
             },
             isMenuOpened: false,

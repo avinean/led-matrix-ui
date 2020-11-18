@@ -77,6 +77,9 @@ class Services {
         });
   }
 
+  getImagesFromController() {}
+  getAnimationsFromController() {}
+
   setRunningText(params) {
     return fetch(BASE_URI + '/running-text', {
       method: 'POST',
