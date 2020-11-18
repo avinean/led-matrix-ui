@@ -6,23 +6,24 @@
         </h4>
         <div class="ui card" style="width: auto;">
             <div class="content">
-                <div class="four ui buttons">
+                <div class="gallery-handlers">
+                    <select
+                        class="ui dropdown fluid mb-10"
+                        v-model="mode"
+                        @change="loadGallery"
+                    >
+                        <option value="0">Images from gallery</option>
+                        <option value="1">Images from memory</option>
+                        <option value="2">Animations from gallery</option>
+                        <option value="3">Animations from memory</option>
+                    </select>
                     <button
-                        class="ui button"
-                        @click="mode = 0; loadGallery();"
-                    >Img (gallery)</button>
-                    <button
-                        class="ui button"
-                        @click="mode = 1; loadGallery();"
-                    >Img (memory)</button>
-                    <button
-                        class="ui button"
-                        @click="mode = 2; loadGallery();"
-                    >Gif (gallery)</button>
-                    <button
-                        class="ui button"
-                        @click="mode = 3; loadGallery();"
-                    >Git (memory)</button>
+                        v-if="mode && store.state.gallery.links.length"
+                        class="ui green compact icon button"
+                        @click="playAll"
+                    >
+                        <i class="play icon"></i>
+                    </button>
                 </div>
                 <div
                     v-if="store.state.gallery.links.length"
@@ -55,20 +56,22 @@ export default {
     inject: ['store'],
     data() {
       return {
-          mode: 0,
+          mode: null,
       }
     },
     computed: {
           prefix() {
-              switch(this.mode) {
+              switch(+this.mode) {
                   case 0: return 'https://dreamer-led.000webhostapp.com/image.php?image=';
                   case 2: return 'https://dreamer-led.000webhostapp.com/gif.php?gif=';
+                  default: return '';
               }
           }
     },
     methods: {
         async loadGallery() {
-            switch(this.mode) {
+            this.store.clearGalleryLinks();
+            switch(+this.mode) {
                 case 0: return await services.getImagesFromGallery();
                 case 1: return await services.getImagesFromController();
                 case 2: return await services.getAnimationsFromGallery();
@@ -88,6 +91,9 @@ export default {
                     services.sendFile(formData);
                 })
         },
+    },
+    mounted() {
+        $('.ui.dropdown').dropdown();
     },
     unmounted () {
         this.store.clearGalleryLinks();
@@ -119,4 +125,17 @@ export default {
 .images__item--active {
     border: 2px solid grey;
 }
+
+.gallery-handlers {
+    display: flex;
+    align-items: center;
+}
+
+.gallery-handlers > div {
+    margin: 0 !important;
+}
+.gallery-handlers > button {
+    margin-left: 10px !important;
+}
+
 </style>

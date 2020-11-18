@@ -3,18 +3,27 @@
         <div class="ui card center" style="width: auto;">
             <div class="content">
 
-                <div class="buttons">
+                <div class="ui small basic icon buttons">
+                    <button
+                        class="ui circular facebook icon button"
+                        @click="rotate"
+                    >
+                        <i class="retweet icon"></i>
+                        <span>Rotate</span>
+                    </button>
                     <button
                         class="ui circular facebook icon button"
                         @click="rotate"
                     >
                         <i class="sync icon"></i>
+                        <span>Refresh</span>
                     </button>
                     <button
                         class="ui circular facebook icon button"
                         @click="toggleSpeed"
                     >
                         <i class="angle double right icon"></i>
+                        <span>Speed</span>
                     </button>
                 </div>
 
@@ -65,7 +74,10 @@ export default {
         },
         rotate() {
             services.rotate();
-        }
+        },
+        refresh() {
+            services.getMatrixState();
+        },
     },
 }
 </script>
@@ -78,5 +90,10 @@ export default {
 
     .speed-range {
         padding: 20px 0;
+    }
+
+    .buttons .button span {
+        display: block;
+        font-size: 10px;
     }
 </style>

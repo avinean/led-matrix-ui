@@ -17,9 +17,9 @@
                     v-for="(tab, key) in tabs"
                     class="ui circular icon button massive main__menu-item"
                     :class="[
-                    key === currentTab ? 'main__menu-item--active' : '',
-                    tab.color
-                ].join(' ')"
+                        key === currentTab ? 'main__menu-item--active' : '',
+                        // tab.color
+                    ].join(' ')"
                     :key="key"
                     @click="currentTab = key"
                 >
@@ -114,6 +114,28 @@ export default {
                     localStorage.currentTab = tab;
                 }
             }
+        },
+    },
+    methods: {
+        initSockets() {
+            try {
+                const webSocket = new WebSocket('ws://localhost/echo');
+
+                webSocket.onopen = event => {
+                    console.log('onopen');
+                    webSocket.send("Hello Web Socket!");
+                };
+
+                webSocket.onmessage = event => {
+                    console.log('onmessage, ' + event.data);
+                };
+
+                webSocket.onclose = event => {
+                    console.log('onclose');
+                };
+            } catch(e) {
+                console.log(e);
+            }
         }
     },
     mounted() {
@@ -122,6 +144,8 @@ export default {
             .then(() => {
                 this.inited = true;
             });
+
+        this.initSockets();
     }
 }
 </script>
@@ -137,7 +161,7 @@ export default {
 .main {
     position: relative;
     min-height: 100vh;
-    padding: 20px 0 50px;
+    padding: 20px 0 100px;
 }
 
 .main > .segment {
@@ -187,6 +211,7 @@ export default {
     opacity: 0;
     right: 0px;
     transition: all 0.5s ease 0s;
+    color: #fff;
 }
 
 .main__menu--opened .main__menu-item span {

@@ -7,8 +7,7 @@
   },
   "dependencies": {
     "vanilla-picker": "^2.10.1",
-    "vue": "^3.0.0-rc.1",
-    "vue-router": "^3.4.9"
+    "vue": "^3.0.0-rc.1"
   },
   "devDependencies": {
     "vite": "^1.0.0-rc.1",

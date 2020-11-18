@@ -8,9 +8,14 @@ const state = reactive({
         links: [],
     },
     matrixParams: {
+        effects: [],
+        games: [],
+        refreshingTime: 5000,
         height: 0,
         width: 0,
     },
+    matrixContent: [],
+    refreshingTime: 5000,
 });
 
 const setLoading = loading => loading ? state.loading++ : state.loading--;
@@ -20,7 +25,12 @@ const setImageList = imageList => state.imageList = imageList;
 const setGalleryLinks = links => state.gallery.links = links;
 const clearGalleryLinks = () => state.gallery.links = [];
 
-const setMatrixParams = matrixParams => state.matrixParams = matrixParams;
+const setMatrixParams = matrixParams => {
+    state.matrixParams = matrixParams;
+    state.refreshingTime = matrixParams.refreshingTime || 5000;
+}
+const setMatrixContent = content => state.matrixContent = content;
+const setRefreshingTime = refreshingTime => state.refreshingTime = refreshingTime;
 
 export default {
     state: readonly(state),
@@ -30,7 +40,9 @@ export default {
     setGalleryLinks,
     clearGalleryLinks,
     setImageLoaded,
-    setMatrixParams
+    setMatrixParams,
+    setMatrixContent,
+    setRefreshingTime
 };
 
 

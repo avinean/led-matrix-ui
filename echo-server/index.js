@@ -78,6 +78,38 @@ app.get('/picture-effects', (req, res) => {
   ]);
 })
 
+app.get('/images', (req, res) => {
+  res.send({
+    "imageList": [
+      "facebook.jpg",
+      "twitter.jpg",
+      "google-plus.jpg",
+      "instagram.jpg",
+      "linkedin.jpg",
+      "behance.jpg",
+      "deviantart.jpg",
+      "dribbble.jpg",
+      "flickr.jpg",
+      "lastfm.jpg",
+      "pinterest.jpg",
+      "soundcloud.jpg",
+      "swarm.jpg",
+      "tumblr.jpg"
+    ]
+  });
+})
+
+app.get('/animations', (req, res) => {
+  res.send({
+    "gifsList": [
+      "g1.gif",
+      "g2.gif",
+      "g3.gif",
+      "g4.gif"
+    ]
+  });
+})
+
 app.post('/picture-effects', (req, res) => {
   console.log(req.body);
   res.sendStatus(200);

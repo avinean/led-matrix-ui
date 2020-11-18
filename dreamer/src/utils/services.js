@@ -33,6 +33,8 @@ class Services {
     return fetch(BASE_URI + '/matrix-state').then(response => {
       const reader = response.body.getReader();
       return reader.read();
+    }).then(({ value }) => {
+      globalStore.setMatrixContent(value);
     });
   }
 
@@ -77,8 +79,30 @@ class Services {
         });
   }
 
-  getImagesFromController() {}
-  getAnimationsFromController() {}
+  getImagesFromController() {
+    globalStore.setLoading(true);
+    return fetch(BASE_URI + '/images')
+        .then(res => res.json())
+        .then((response) => {
+          if (response.imageList.length) {
+            globalStore.setGalleryLinks(response.imageList);
+          }
+        }).finally(() => {
+          globalStore.setLoading();
+        });
+  }
+
+  getAnimationsFromController() {
+    globalStore.setLoading(true);
+    return fetch(BASE_URI + '/animations')
+        .then(res => res.json())
+        .then((response) => {
+          if (response.gifsList.length) {
+            globalStore.setGalleryLinks(response.gifsList);
+          }
+        }).finally(() => {
+          globalStore.setLoading();
+        });}
 
   setRunningText(params) {
     return fetch(BASE_URI + '/running-text', {
@@ -122,6 +146,10 @@ class Services {
 
   rotate() {
     return fetch(BASE_URI + '/rotate', { method: 'POST' });
+  }
+
+  setRefreshingTime(refreshingTime) {
+    return fetch(BASE_URI + '/rotate', { method: 'POST', body: JSON.stringify({refreshingTime}) });
   }
 
 }

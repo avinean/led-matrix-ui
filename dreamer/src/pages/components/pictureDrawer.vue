@@ -88,12 +88,14 @@ export default {
             picker: null,
             isFillMode: false,
             timer: null,
-            timeDelay: 5000,
         };
     },
     computed: {
         matrixParams() {
             return this.store.state.matrixParams;
+        },
+        timeDelay() {
+            return this.store.state.refreshingTime;
         }
     },
     watch: {
@@ -105,6 +107,12 @@ export default {
         },
         'store.state.isImageLoaded'(is) {
             this.refresh();
+        },
+        'store.state.matrixContent'() {
+            // if user is currently drawing than
+            // drawer shouldn't be refreshed from server
+            if (this.isDrawing || !this.store.state.matrixContent) return;
+            this.redrawMatrix(value);
         }
     },
     methods: {
@@ -208,12 +216,7 @@ export default {
             services.drawSinglePixel(params);
         },
         refresh() {
-            services.getMatrixState().then(({ value }) => {
-                // if user is currently drawing than 
-                // drawer shouldn't be refreshed from server
-                if (this.isDrawing || !value) return;
-                this.redrawMatrix(value);
-            });
+            services.getMatrixState();
         },
         fillDrawer() {
             const [r, g, b] = this.srcColor;
@@ -225,6 +228,7 @@ export default {
         this.initPicker();
         this.calculateCharSize();
         this.refresh();
+        this.initRefreshing()
     },
     unmounted() {
         setTimeout(() => {
