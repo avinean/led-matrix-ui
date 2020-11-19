@@ -6,7 +6,7 @@
         </h4>
         <div class="ui card" style="width: auto;">
             <div class="content">
-                <div class="gallery-handlers">
+                <div class="gallery-handlers mb-10">
                     <select
                         class="ui dropdown fluid mb-10"
                         v-model="mode"
@@ -61,9 +61,9 @@ export default {
     },
     computed: {
           prefix() {
-              switch(+this.mode) {
-                  case 0: return 'https://dreamer-led.000webhostapp.com/image.php?image=';
-                  case 2: return 'https://dreamer-led.000webhostapp.com/gif.php?gif=';
+              switch(this.mode) {
+                  case '0': return 'https://dreamer-led.000webhostapp.com/image.php?image=';
+                  case '2': return 'https://dreamer-led.000webhostapp.com/gif.php?gif=';
                   default: return '';
               }
           }
@@ -71,16 +71,16 @@ export default {
     methods: {
         async loadGallery() {
             this.store.clearGalleryLinks();
-            switch(+this.mode) {
-                case 0: return await services.getImagesFromGallery();
-                case 1: return await services.getImagesFromController();
-                case 2: return await services.getAnimationsFromGallery();
-                case 3: return await services.getAnimationsFromController();
+            switch(this.mode) {
+                case '0': return await services.getImagesFromGallery();
+                case '1': return await services.getImagesFromController();
+                case '2': return await services.getAnimationsFromGallery();
+                case '3': return await services.getAnimationsFromController();
             }
         },
         selectGif(url) {
             const [ fileName ] = url.match(/[\d\w]+\.gif$/gim) || [];
-            fetch(url)
+            return fetch(url)
                 .then(e => e.blob())
                 .then(blob => {
                     const file = new File([blob], fileName);
@@ -88,9 +88,30 @@ export default {
                     const formData = new FormData();
                     formData.append('update', file);
 
-                    services.sendFile(formData);
+                    return services.sendFile(formData);
                 })
         },
+        async playAll() {
+            switch(this.mode) {
+                case '0': return this.sendAllRecursively();
+                case '1': return await services.playAll();
+                case '2': return this.sendAllRecursively();
+                case '3': return await services.playAll();
+            }
+        },
+        sendAllRecursively() {
+            const send = async (i) => {
+                const fileName = this.store.state.gallery.links[i];
+                if (!fileName) {
+                    await services.playAll();
+                    return;
+                }
+                await this.selectGif(this.prefix + fileName);
+                await send(i + 1);
+            }
+
+            send(0);
+        }
     },
     mounted() {
         $('.ui.dropdown').dropdown();

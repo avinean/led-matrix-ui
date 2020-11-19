@@ -11,6 +11,7 @@ const state = reactive({
         effects: [],
         games: [],
         refreshingTime: 5000,
+        colorsCorrections: [100,100,100],
         height: 0,
         width: 0,
     },
@@ -31,6 +32,7 @@ const setMatrixParams = matrixParams => {
 }
 const setMatrixContent = content => state.matrixContent = content;
 const setRefreshingTime = refreshingTime => state.refreshingTime = refreshingTime;
+const setCorrections = corrections => state.matrixParams.colorsCorrections = corrections;
 
 export default {
     state: readonly(state),
@@ -42,7 +44,8 @@ export default {
     setImageLoaded,
     setMatrixParams,
     setMatrixContent,
-    setRefreshingTime
+    setRefreshingTime,
+    setCorrections
 };
 
 
