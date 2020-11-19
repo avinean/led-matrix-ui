@@ -128,6 +128,8 @@ export default {
 
                 webSocket.onmessage = event => {
                     console.log('onmessage, ' + event.data);
+
+                    store.setMatrixContent(event.data);
                 };
 
                 webSocket.onclose = event => {
