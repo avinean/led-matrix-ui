@@ -1,1 +1,0 @@
-gzip -vr ../data/_assets

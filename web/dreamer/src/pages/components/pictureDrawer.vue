@@ -108,7 +108,7 @@ export default {
         'store.state.isImageLoaded'(is) {
             this.refresh();
         },
-        'store.state.matrixContent'(value) {
+        'store.state.matrixContent'() {
             // if user is currently drawing than
             // drawer shouldn't be refreshed from server
             if (this.isDrawing || !this.store.state.matrixContent) return;

@@ -7,6 +7,9 @@
         <div class="ui card" style="width: auto;">
             <div class="content">
                 <div class="mb-10">
+                    <h6 class="ui horizontal divider header">
+                        Upload soft
+                    </h6>
                     <label class="ui right labeled icon button primary">
                         <i class="upload icon"></i>
                         Upload update
@@ -19,14 +22,44 @@
                         />
                     </label >
                 </div>
-                <div class="ui divider"></div>
                 <div class="mb-10">
-                    Refreshing time
+                    <h6 class="ui horizontal divider header">
+                        Refreshing time
+                    </h6>
                     <app-range
                         :min="1"
                         :max="25"
                         v-model="refreshingTime"
                         @change="setRefreshingTime"
+                    ></app-range>
+                </div>
+                <div class="mb-10">
+                    <h6 class="ui horizontal divider header">
+                        Colors corrections
+                    </h6>
+                    Red
+                    <app-range
+                        :min="1"
+                        :max="225"
+                        :modelValue="colorsCorrections[0]"
+                        class="mb-10"
+                        @update:modelValue="setCorrections(0, $event)"
+                    ></app-range>
+                    Green
+                    <app-range
+                        :min="1"
+                        :max="225"
+                        :modelValue="colorsCorrections[1]"
+                        class="mb-10"
+                        @update:modelValue="setCorrections(1, $event)"
+                    ></app-range>
+                    Blue
+                    <app-range
+                        :min="1"
+                        :max="225"
+                        :modelValue="colorsCorrections[2]"
+                        class="mb-10"
+                        @update:modelValue="setCorrections(3, $event)"
                     ></app-range>
                 </div>
             </div>
@@ -45,14 +78,17 @@ export default {
         AppRange,
     },
     computed: {
-      refreshingTime: {
-          get() {
-              return this.store.state.refreshingTime / 1000;
-          },
-          set(value) {
-              this.store.setRefreshingTime(value * 1000);
-          }
-      }
+        refreshingTime: {
+            get() {
+                return this.store.state.refreshingTime / 1000;
+            },
+            set(value) {
+                this.store.setRefreshingTime(value * 1000);
+            }
+        },
+        colorsCorrections() {
+            return this.store.state.matrixParams.colorsCorrections || [100,100,100];
+        }
     },
     methods: {
         upload (event) {
@@ -65,6 +101,16 @@ export default {
         },
         setRefreshingTime(){
             services.setRefreshingTime(this.refreshingTime);
+        },
+        setCorrections(color, value) {
+            const corrections = [...this.colorsCorrections];
+            corrections[color] = parseInt(value);
+
+            this.store.setCorrections(corrections);
+
+            services.setPictureEffects({
+                colorsCorrections: corrections,
+            });
         }
     },
 }

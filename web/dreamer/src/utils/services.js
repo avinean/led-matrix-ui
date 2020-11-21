@@ -133,12 +133,7 @@ class Services {
   sendFile(body) {
     // is used for sending any file
     if (!body) return;
-    console.log(JSON.stringify(body));
     return fetch(BASE_URI + '/send-file', { method: 'POST', body, });
-  }
-
-  getEffectsList() {
-    return fetch(BASE_URI + '/picture-effects').then(res => res.json());
   }
 
   setPictureEffects(body) {
@@ -151,6 +146,10 @@ class Services {
 
   setRefreshingTime(refreshingTime) {
     return fetch(BASE_URI + '/rotate', { method: 'POST', body: JSON.stringify({refreshingTime}) });
+  }
+
+  playAll() {
+    return fetch(BASE_URI + '/play-all', { method: 'POST' });
   }
 
 }

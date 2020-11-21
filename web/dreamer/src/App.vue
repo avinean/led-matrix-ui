@@ -119,8 +119,7 @@ export default {
     methods: {
         initSockets() {
             try {
-                let ip = window.location.host;
-                const webSocket = new WebSocket(`ws://${ip}/echo`);
+                const webSocket = new WebSocket('ws://localhost/echo');
 
                 webSocket.onopen = event => {
                     console.log('onopen');
@@ -129,6 +128,8 @@ export default {
 
                 webSocket.onmessage = event => {
                     console.log('onmessage, ' + event.data);
+
+                    store.setMatrixContent(event.data);
                 };
 
                 webSocket.onclose = event => {
