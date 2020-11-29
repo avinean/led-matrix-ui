@@ -79,12 +79,12 @@ export default {
             }
         },
         selectGif(url) {
-            const [ fileName ] = url.match(/[\d\w]+\.gif$/gim) || [];
+            let [ fileName ] = url.match(/[\d\w]+\.(jpg|jpeg|jpe|jif|jfif|jfi|gif)$/) || [];
+
             return fetch(url)
                 .then(e => e.blob())
                 .then(blob => {
                     const file = new File([blob], fileName);
-
                     const formData = new FormData();
                     formData.append('update', file);
 

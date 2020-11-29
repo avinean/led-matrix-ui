@@ -1,2 +1,5 @@
 /web/node_modules/
 /web/dist/
+/web/echo_server/node_modules/
+/web/echo_server/package-lock.json
+.idea

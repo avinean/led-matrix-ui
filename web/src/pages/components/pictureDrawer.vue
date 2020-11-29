@@ -87,7 +87,6 @@ export default {
             charSize: 0,
             picker: null,
             isFillMode: false,
-            timer: null,
         };
     },
     computed: {
@@ -108,7 +107,7 @@ export default {
         'store.state.isImageLoaded'(is) {
             this.refresh();
         },
-        'store.state.matrixContent'() {
+        'store.state.matrixContent'(value) {
             // if user is currently drawing than
             // drawer shouldn't be refreshed from server
             if (this.isDrawing || !this.store.state.matrixContent) return;
@@ -130,7 +129,7 @@ export default {
             this.picker.setOptions({
                 popup: 'bottom',
             });
-            
+
             this.picker.onDone = color =>  {
                 this.srcColor = color.rgba;
                 this.currentColor = color.rgbaString;
@@ -140,10 +139,10 @@ export default {
             };
         },
         callPicker(event) {
-            var xcoord = event.touches? event.touches[0].clientX : event.clientX;
-            var ycoord = event.touches? event.touches[0].clientY : event.clientY;
-            
-            var targetElement = document.elementFromPoint(xcoord, ycoord);
+            const xcoord = event.touches? event.touches[0].clientX : event.clientX;
+            const ycoord = event.touches? event.touches[0].clientY : event.clientY;
+
+            const targetElement = document.elementFromPoint(xcoord, ycoord);
             this.prevTouchedElement = targetElement;
 
             setTimeout(() => {
@@ -160,16 +159,16 @@ export default {
         doDraw(event) {
             event.preventDefault();
             if (!this.isDrawing) return;
-            
-            var xcoord = event.touches? event.touches[0].clientX : event.clientX;
-            var ycoord = event.touches? event.touches[0].clientY : event.clientY;
-            
-            var targetElement = document.elementFromPoint(xcoord, ycoord);
+
+            const xcoord = event.touches? event.touches[0].clientX : event.clientX;
+            const ycoord = event.touches? event.touches[0].clientY : event.clientY;
+
+            const targetElement = document.elementFromPoint(xcoord, ycoord);
 
             if (this.prevDrawnElement === targetElement) return;
             this.prevDrawnElement = targetElement;
             this.prevTouchedElement = targetElement;
-            
+
             if (targetElement && targetElement.classList.contains('drawer__col')) {
                 const { x, y } = targetElement.dataset;
                 this.matrix[y][x].background = this.currentColor;
@@ -206,12 +205,6 @@ export default {
                 })
             })
         },
-        initRefreshing() {
-            this.timer = setTimeout(async () => {
-                await this.refresh();
-                this.initRefreshing();
-            }, this.timeDelay);
-        },
         sendData(params) {
             services.drawSinglePixel(params);
         },
@@ -228,12 +221,6 @@ export default {
         this.initPicker();
         this.calculateCharSize();
         this.refresh();
-        this.initRefreshing()
     },
-    unmounted() {
-        setTimeout(() => {
-            clearTimeout(this.timer);
-        }, this.timeDelay + 1000);
-    }
 }
 </script>

@@ -13,7 +13,7 @@
                     </button>
                     <button
                         class="ui circular facebook icon button"
-                        @click="rotate"
+                        @click="refresh"
                     >
                         <i class="sync icon"></i>
                         <span>Refresh</span>
@@ -30,7 +30,7 @@
                 <div v-show="isSpeedShown" class="speed-range">
                     <app-range
                         :min="1"
-                        :max="6"
+                        :max="store.state.matrixParams.speedMax"
                         v-model="speed"
                     ></app-range>
                 </div>
@@ -66,9 +66,7 @@ export default {
           this.isSpeedShown = !this.isSpeedShown;
         },
         setSpeed() {
-            services.setPictureEffects({
-                speed: this.speed,
-            }).then(() => {
+            services.setSpeed(this.speed).then(() => {
                 this.isSpeedShown = false;
             });
         },

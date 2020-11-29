@@ -41,7 +41,6 @@ import services from '/@utils/services';
 import AppToolbar from '/@components/toolbar.vue';
 import AppPicture from '/@pages/picture.vue';
 import AppText from '/@pages/text.vue';
-import AppAnimation from '/@pages/animations.vue';
 import AppEffects from '/@pages/effects.vue';
 import AppGames from '/@pages/games.vue';
 import AppSettings from '/@pages/settings.vue';
@@ -70,12 +69,6 @@ export default {
                     component: AppText,
                     color: 'green'
                 },
-                // 'Animations': {
-                //     label: 'Animations',
-                //     icon: 'play',
-                //     component: AppAnimation,
-                //     color: 'teal'
-                // },
                 'Effects for picture': {
                     label: 'Effects for picture',
                     icon: 'film',
@@ -129,7 +122,10 @@ export default {
                 webSocket.onmessage = event => {
                     console.log('onmessage, ' + event.data);
 
-                    store.setMatrixContent(event.data);
+                    const reader = event.data.getReader();
+                    reader.read().then(({ value }) => {
+                        store.setMatrixContent(value);
+                    });
                 };
 
                 webSocket.onclose = event => {
@@ -147,7 +143,7 @@ export default {
                 this.inited = true;
             });
 
-        this.initSockets();
+        // this.initSockets();
     }
 }
 </script>

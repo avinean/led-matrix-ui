@@ -4,23 +4,23 @@ const BASE_URI = location.host.includes("localhost") ? 'http://localhost:2832' :
 
 class Services {
 
-  fillMatrix(body) {   
-    return fetch(BASE_URI + '/fill-matrix', {  
-      method: 'POST',  
-      headers: {  
+  fillMatrix(body) {
+    return fetch(BASE_URI + '/fill-matrix', {
+      method: 'POST',
+      headers: {
         'Content-Type': 'application/json',
-      },  
+      },
       body: JSON.stringify(body),
     })
   }
 
   sendImgData(body) {
     globalStore.setLoading(1)
-    return fetch(BASE_URI + '/draw', {  
-      method: 'POST',  
-      headers: {  
+    return fetch(BASE_URI + '/draw', {
+      method: 'POST',
+      headers: {
         'Content-Type': 'application/octet-stream',
-      },  
+      },
       body,
     }).then(() => {
       globalStore.setImageLoaded(body);
@@ -44,6 +44,13 @@ class Services {
       .then(params => {
          globalStore.setMatrixParams(params);
       });
+  }
+
+  setSpeed(speed) {
+    return fetch(BASE_URI + '/speed', {
+      method: 'POST',
+      body: JSON.stringify({ speed }),
+    });
   }
 
   drawSinglePixel(params) {

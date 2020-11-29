@@ -12,6 +12,7 @@ const state = reactive({
         games: [],
         refreshingTime: 5000,
         colorsCorrections: [100,100,100],
+        speedMax: 1000,
         height: 0,
         width: 0,
     },
