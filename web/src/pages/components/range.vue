@@ -17,7 +17,7 @@ export default {
     name: 'app-range',
     props: {
         modelValue: {
-            type: Boolean,
+            type: [String, Number],
             required: true,
             default: 3
         },

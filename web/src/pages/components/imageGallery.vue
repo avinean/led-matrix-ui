@@ -12,17 +12,25 @@
                         v-model="mode"
                         @change="loadGallery"
                     >
-                        <option value="0">Images from gallery</option>
-                        <option value="1">Images from memory</option>
-                        <option value="2">Animations from gallery</option>
-                        <option value="3">Animations from memory</option>
+                        <option :value="modes.imagesFromGallery">Images from gallery</option>
+                        <option :value="modes.imagesFromMemory">Images from memory</option>
+                        <option :value="modes.animationsFromGallery">Animations from gallery</option>
+                        <option :value="modes.animationsFromMemory">Animations from memory</option>
                     </select>
+                    <button
+                        v-if="!isFromMemory && mode && store.state.gallery.links.length"
+                        class="ui compact icon button"
+                        :class="multiMode ? 'green' : 'grey'"
+                        @click="multiMode = !multiMode"
+                    >
+                        <i class="icon" :class="multiMode ? 'tasks' : 'list ul'"></i>
+                    </button>
                     <button
                         v-if="mode && store.state.gallery.links.length"
                         class="ui green compact icon button"
                         @click="playAll"
                     >
-                        <i class="play icon"></i>
+                        <i class="icon" :class="isFromMemory ? 'play' : 'save'"></i>
                     </button>
                 </div>
                 <div
@@ -33,6 +41,9 @@
                         v-for="(gif, i) in store.state.gallery.links"
                         :key="gif"
                         class="images__item"
+                        :class="{
+                            'images__item--active': selectedImages.includes(prefix + gif)
+                        }"
                     >
                         <img
                             crossorigin="Anonymous"
@@ -54,32 +65,79 @@ import store from '/@store/index';
 export default {
     name: 'app-animation-gallery',
     inject: ['store'],
-    data() {
-      return {
-          mode: null,
-      }
+    data () {
+        return {
+            mode: null,
+            modes: {
+                imagesFromGallery: '0',
+                imagesFromMemory: '1',
+                animationsFromGallery: '2',
+                animationsFromMemory: '3',
+            },
+            multiMode: false,
+            selectedImages: []
+        }
     },
     computed: {
-          prefix() {
-              switch(this.mode) {
-                  case '0': return 'https://dreamer-led.000webhostapp.com/image.php?image=';
-                  case '2': return 'https://dreamer-led.000webhostapp.com/gif.php?gif=';
-                  default: return '';
-              }
-          }
-    },
-    methods: {
-        async loadGallery() {
-            this.store.clearGalleryLinks();
-            switch(this.mode) {
-                case '0': return await services.getImagesFromGallery();
-                case '1': return await services.getImagesFromController();
-                case '2': return await services.getAnimationsFromGallery();
-                case '3': return await services.getAnimationsFromController();
+        prefix () {
+            switch (this.mode) {
+                case this.modes.imagesFromGallery:
+                    return 'https://dreamer-led.000webhostapp.com/image.php?image=';
+                case this.modes.animationsFromGallery:
+                    return 'https://dreamer-led.000webhostapp.com/gif.php?gif=';
+                default:
+                    return '';
             }
         },
-        selectGif(url) {
-            let [ fileName ] = url.match(/[\d\w]+\.(jpg|jpeg|jpe|jif|jfif|jfi|gif)$/) || [];
+        isFromMemory() {
+            switch (this.mode) {
+                case this.modes.imagesFromGallery:
+                case this.modes.animationsFromGallery:
+                    return false;
+                case this.modes.imagesFromMemory:
+                case this.modes.animationsFromMemory:
+                    return true;
+            }
+        },
+        readyLinks() {
+            if (this.multiMode) {
+                return this.selectedImages
+            }
+            return this.store.state.gallery.links;
+        }
+
+    },
+    methods: {
+        async loadGallery () {
+            this.store.clearGalleryLinks();
+            switch (this.mode) {
+                case this.modes.imagesFromGallery:
+                    return await services.getImagesFromGallery();
+                case this.modes.imagesFromMemory:
+                    return await services.getImagesFromController();
+                case this.modes.animationsFromGallery:
+                    return await services.getAnimationsFromGallery();
+                case this.modes.animationsFromMemory:
+                    return await services.getAnimationsFromController();
+            }
+        },
+        selectGif (url) {
+            if (this.multiMode) {
+                this.selectMultiImages(url);
+            } else {
+                this.selectSingleImage(url);
+            }
+        },
+        selectMultiImages(url) {
+            const index = this.selectedImages.indexOf(url);
+            if (index >= 0) {
+                this.selectedImages.splice(index, 1);
+            } else {
+                this.selectedImages.push(url);
+            }
+        },
+        selectSingleImage (url) {
+            let [fileName] = url.match(/[\d\w]+\.(jpg|jpeg|jpe|jif|jfif|jfi|gif)$/) || [];
 
             return fetch(url)
                 .then(e => e.blob())
@@ -91,19 +149,22 @@ export default {
                     return services.sendFile(formData);
                 })
         },
-        async playAll() {
-            switch(this.mode) {
-                case '0': return this.sendAllRecursively();
-                case '1': return await services.playAll();
-                case '2': return this.sendAllRecursively();
-                case '3': return await services.playAll();
+        async playAll () {
+            switch (this.mode) {
+                case this.modes.imagesFromGallery:
+                    return this.sendAllRecursively();
+                case this.modes.imagesFromMemory:
+                    return await services.playAllImages();
+                case this.modes.animationsFromGallery:
+                    return this.sendAllRecursively();
+                case this.modes.animationsFromMemory:
+                    return await services.playAllAnimations();
             }
         },
-        sendAllRecursively() {
+        sendAllRecursively () {
             const send = async (i) => {
-                const fileName = this.store.state.gallery.links[i];
+                const fileName = this.readyLinks[i];
                 if (!fileName) {
-                    await services.playAll();
                     return;
                 }
                 await this.selectGif(this.prefix + fileName);
@@ -113,38 +174,41 @@ export default {
             send(0);
         }
     },
-    mounted() {
+    mounted () {
         $('.ui.dropdown').dropdown();
     },
     unmounted () {
         this.store.clearGalleryLinks();
-    }
+    },
 }
 </script>
 
 <style>
 .images {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
 }
 
 .images > span {
-  margin-bottom: 10px;
+    margin-bottom: 10px;
 }
 
 .gallery .ui.images img {
-  width: 50px;
-  height: 50px;
+    width: 50px;
+    height: 50px;
 }
 
 .images__item {
-    border: 2px solid transparent;
+    overflow: hidden;
     border-radius: 4px;
 }
 
 .images__item--active {
-    border: 2px solid grey;
+    position: relative;
+    top: -2px;
+    left: -2px;
+    box-shadow: grey 2px 2px 3px 2px;
 }
 
 .gallery-handlers {
@@ -155,6 +219,7 @@ export default {
 .gallery-handlers > div {
     margin: 0 !important;
 }
+
 .gallery-handlers > button {
     margin-left: 10px !important;
 }

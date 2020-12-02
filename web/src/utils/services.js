@@ -53,6 +53,13 @@ class Services {
     });
   }
 
+  setBrightness(brightness) {
+    return fetch(BASE_URI + '/brightness', {
+      method: 'POST',
+      body: JSON.stringify({ brightness }),
+    });
+  }
+
   drawSinglePixel(params) {
     return fetch(BASE_URI + '/pixel', {
       method: 'POST',
@@ -155,8 +162,12 @@ class Services {
     return fetch(BASE_URI + '/rotate', { method: 'POST', body: JSON.stringify({refreshingTime}) });
   }
 
-  playAll() {
-    return fetch(BASE_URI + '/play-all', { method: 'POST' });
+  playAllImages() {
+    return fetch(BASE_URI + '/play-jpgs', { method: 'POST' });
+  }
+
+  playAllAnimations() {
+    return fetch(BASE_URI + '/play-gifs', { method: 'POST' });
   }
 
 }

@@ -15,6 +15,8 @@ const state = reactive({
         speedMax: 1000,
         height: 0,
         width: 0,
+        speed: 20,
+        brightness: 100
     },
     matrixContent: [],
     refreshingTime: 5000,

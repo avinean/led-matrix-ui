@@ -33,6 +33,8 @@ app.get('/matrix-parameters', (req, res) => {
         refreshingTime: 5000,
         colorsCorrections: [100,100,100],
         speedMax: 1000,
+        speed: 20,
+        brightness: 100
     })
 })
 
@@ -119,6 +121,16 @@ app.post('/picture-effects', (req, res) => {
 })
 
 app.post('/send-file', (req, res) => {
+    console.log(req.body);
+    res.sendStatus(200);
+})
+
+app.post('/speed', (req, res) => {
+    console.log(req.body);
+    res.sendStatus(200);
+})
+
+app.post('/brightness', (req, res) => {
     console.log(req.body);
     res.sendStatus(200);
 })
