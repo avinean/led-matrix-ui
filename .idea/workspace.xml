@@ -19,15 +19,7 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b370d105-6e5b-4ddf-a473-7ce6b261b587" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/echo_server/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/echo_server/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/pages/components/imageGallery.vue" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/pages/components/imageGallery.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/pages/components/range.vue" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/pages/components/range.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/pages/components/toolbar.vue" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/pages/components/toolbar.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/store/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/store/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/src/utils/services.js" beforeDir="false" afterPath="$PROJECT_DIR$/web/src/utils/services.js" afterDir="false" />
-    </list>
+    <list default="true" id="b370d105-6e5b-4ddf-a473-7ce6b261b587" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -117,7 +109,7 @@
       <workItem from="1605541872291" duration="18903000" />
       <workItem from="1605790799125" duration="2332000" />
       <workItem from="1606661837705" duration="4661000" />
-      <workItem from="1606936159103" duration="6163000" />
+      <workItem from="1606936159103" duration="6957000" />
     </task>
     <servers />
   </component>

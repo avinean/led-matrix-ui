@@ -46,9 +46,9 @@
                         }"
                     >
                         <img
-                            crossorigin="Anonymous"
+                            v-if="blobList[gif]"
                             :ref="'gif' + i"
-                            :src="prefix + gif"
+                            :src="blobList[gif]"
                             @click="selectGif(prefix + gif)"
                         />
                     </span>
@@ -75,7 +75,8 @@ export default {
                 animationsFromMemory: '3',
             },
             multiMode: false,
-            selectedImages: []
+            selectedImages: [],
+            blobList: {}
         }
     },
     computed: {
@@ -106,6 +107,30 @@ export default {
             return this.store.state.gallery.links;
         }
 
+    },
+    watch: {
+        'store.state.gallery.links'() {
+            const links = [...this.store.state.gallery.links];
+            const loadImageBlob = (links) => {
+                const src = links.pop();
+
+                if (!src) return;
+
+                fetch(this.prefix + src)
+                .then(res => res.blob())
+                .then(res => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(res); 
+                    reader.onloadend = () => {
+                        this.blobList[src] = reader.result;    
+                    }
+                })
+
+                loadImageBlob(links);
+            }
+
+            loadImageBlob(links);
+        }
     },
     methods: {
         async loadGallery () {
